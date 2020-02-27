@@ -1,0 +1,22 @@
+{
+  "name": "idsrv",
+  "version": "1.0.0",
+  "description": "A WebID-OIDC authentication server.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "WebID-OIDC",
+    "Semantic Web"
+  ],
+  "author": "ksaito-hiu",
+  "license": "ISC",
+"bugs": {
+    "url": "https://github.com/ksaito-hiu/idsrv/issues"
+  },
+  "homepage": "https://github.com/ksaito-hiu/idsrv#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
