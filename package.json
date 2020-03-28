@@ -12,11 +12,18 @@
   ],
   "author": "ksaito-hiu",
   "license": "ISC",
-"bugs": {
+  "bugs": {
     "url": "https://github.com/ksaito-hiu/idsrv/issues"
   },
   "homepage": "https://github.com/ksaito-hiu/idsrv#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "express-session": "^1.17.0",
+    "jose": "^1.24.0",
+    "lowdb": "^1.0.0",
+    "mongodb": "^3.5.4",
+    "node-fetch": "^2.6.0",
+    "oidc-provider": "^6.21.1",
+    "openid-client": "^3.13.0"
   }
 }
