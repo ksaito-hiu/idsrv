@@ -1,0 +1,10 @@
+{
+  "users": [
+    {
+      "id": "https://yourdomain.com/people/yourname#me",
+      "googleId": "google-ID_NUMBER_MAYBE_21_DIGITS",
+      "yahooId": "yahoo-ID_STRING_MAYBE_16_CHARS",
+      "webid": "https://yourdomain.com/people/yourname#me"
+    }
+  ]
+}
