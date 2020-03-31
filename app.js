@@ -14,6 +14,7 @@ const jwks = require('./jwks.json');
 const google_auth = require('./google_auth');
 const yahoo_auth = require('./yahoo_auth');
 const local_auth = require('./local_auth');
+const admin = require('./admin');
 
 const extless = require('./extless');
 
@@ -81,8 +82,8 @@ const allowCrossDomain = function(req,res,next) {
         features: {
             // disable the packaged interactions
             devInteractions: { enabled: false },
-            introspection: { enabled: true },
-            revocation: { enabled: true },
+            introspection: { enabled: true }, // RFC7662
+            revocation: { enabled: true }, // RFC7009
 
             registration: { enabled: true },
             requestObjects: {
@@ -105,8 +106,8 @@ const allowCrossDomain = function(req,res,next) {
                 'EdDSA'
             ]
         },
+        extraParams: ['key'],
         /*
-        extraParams: ['key','cnf'],
         async extraAccessTokenClaims(ctx,token) {
             ctx.oidc.issuer.substring(0);
             token.jti.substring(0);
@@ -138,7 +139,8 @@ const allowCrossDomain = function(req,res,next) {
         saveUninitialized: false, //??? しかも要るかな？
         httpOnly: true, // openid-clientパッケージの要請
         secure: true, // openid-clientパッケージの要請
-        cookie: { path: '/auth', maxAge: 30 * 60 * 1000 }
+        //cookie: { path: '/auth', maxAge: 30 * 60 * 1000 }
+        cookie: { maxAge: 30 * 60 * 1000 }
     }));
 
     function setNoCache(req, res, next) {
@@ -220,6 +222,7 @@ const allowCrossDomain = function(req,res,next) {
     expressApp.use('/auth/google',google_auth);
     expressApp.use('/auth/yahoo',yahoo_auth);
     expressApp.use('/auth/local',local_auth);
+    expressApp.use('/admin',admin);
 
     expressApp.get('/robots.txt',(req,res)=>{
         res.header('Content-Type', 'text/plain');
@@ -227,7 +230,17 @@ const allowCrossDomain = function(req,res,next) {
     });
 
     expressApp.get('/',(req,res)=>{
-        res.render('RP/index.ejs',{});
+        let str;
+        if (!!req.session) {
+            if (!!req.session.webid) {
+                str = `You are logged in as ${req.session.webid}.`;
+            } else {
+                str = 'You are not logged in.';
+            }
+        } else {
+            str = 'You are not logged in. (no session)';
+        }
+        res.render('OP/index.ejs',{msg:str});
     });
 
     // oidc-providerはプレフィックス付けて運用する。

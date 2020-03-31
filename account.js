@@ -1,5 +1,6 @@
 const low = require('lowdb');
 const Memory = require('lowdb/adapters/Memory');
+const jose = require('jose');
 const initial_users = require('./users.json');
 
 const db = low(new Memory());
@@ -19,9 +20,23 @@ function Account() {
   // 以下のfindAccount関数は，accountId属性と
   // claims関数が入ったオブジェクトをPromiseで返す関数
   self.findAccount = async function(ctx, id,token) {
+    /* このコードはoidc-providerの修正が前提。
+     * その修正は受理されなかったので別の方法が必要
     if (!!ctx.oidc.client) {
       if (!!ctx.oidc.params.key) {
         ctx.oidc.client.pKey = ctx.oidc.params.key;
+      }
+    }
+    */
+    // ということで以下のようにした
+    // これでもAuthorization Code Flowの時は
+    // うまくいかないことの方が多い。
+    if (!!ctx.oidc.client) {
+      const r = /request=([^&]*)/.exec(ctx.originalUrl);
+      if (!!r[1]) {
+        const reqObj = jose.JWT.decode(r[1]);
+        if (!!reqObj.key)
+          ctx.oidc.client.pKey = reqObj.key;
       }
     }
 

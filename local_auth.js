@@ -46,6 +46,7 @@ const config = require('./config.json');
             const tokenSet = await localClient.callback(config.localAPI.redirect_uris[0], params, { code_verifier });
             //const userinfo = await googleClient.userinfo(tokenSet.access_token);
             req.session.id_tokenX = tokenSet.id_token;
+            req.session.webid = tokenSet.claims().sub;
             res.render('RP/result.ejs',{result: 'id_token = '+tokenSet.id_token});
         } catch(err) {
             res.render('RP/error.ejs',{message: JSON.stringify(err)});
@@ -59,12 +60,13 @@ const config = require('./config.json');
                 /* response_type: '???', */
                 /* scope: 'openid', */
                 /* redirect_uri: 'http://localhost:3000/', */
-                /* post_logout_redirect_uri: 'http://localhost:3000/', */
+                post_logout_redirect_uri: 'https://id.do-johodai.ac.jp/',
                 id_token_hint: req.session.id_tokenX,
             };
         } else {
             params = {};
         }
+        req.session.webid = null;
         const theUrl = localClient.endSessionUrl(params);
         res.redirect(theUrl);
     });
