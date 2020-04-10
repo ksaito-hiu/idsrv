@@ -33,10 +33,12 @@ function Account() {
     // うまくいかないことの方が多い。
     if (!!ctx.oidc.client) {
       const r = /request=([^&]*)/.exec(ctx.originalUrl);
-      if (!!r[1]) {
-        const reqObj = jose.JWT.decode(r[1]);
-        if (!!reqObj.key)
-          ctx.oidc.client.pKey = reqObj.key;
+      if (!!r) {
+        if (!!r[1]) {
+          const reqObj = jose.JWT.decode(r[1]);
+          if (!!reqObj.key)
+            ctx.oidc.client.pKey = reqObj.key;
+        }
       }
     }
 
