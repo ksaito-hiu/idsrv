@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Yahoo!Japan sub getter</title>
+    <script>
+     const auth_endpoint = 'https://auth.login.yahoo.co.jp/yconnect/v2/authorization';
+     const client_id = 'dj00aiZpPUJCa3NmU1JYQ2VVcyZzPWNvbnN1bWVyc2VjcmV0Jng9YWE-';
+    </script>
+    <script>
+     // OpenID Connectのimplicit flowのクライアント。
+     // subを表示させるのが目的
+     function init() {
+         let state='some_random_string';
+         let nonce='some_random_string_too';
+         let redirect_uri= window.location.origin;
+         redirect_uri += window.location.pathname;
+         let uri = auth_endpoint + '?scope=openid';
+         uri += `&client_id=${client_id}`;
+         uri += '&response_type=id_token+token';
+         uri += `&redirect_uri=${redirect_uri}`;
+         uri += `&state=${state}`;
+         uri += `&nonce=${nonce}`;
+         const a = document.querySelector("#auth_req");
+         a.setAttribute("href",uri);
+         if (!!window.location.hash) {
+             console.log('['+window.location.hash+']');
+             const pre = document.querySelector("#result");
+             let res = {};
+             const frag = window.location.hash.substring(1);
+             const params = frag.split('&');
+             for (let i=0;i<params.length;i++) {
+                 const key = params[i].split('=')[0];
+                 const val = params[i].split('=')[1];
+                 res[key] = val;
+             }
+             const id_token = res['id_token'];
+             const base64Url = id_token.split('.')[1];
+             const base64 = base64Url.replace(/-/g,'+').replace(/_/g,'/');
+             const payload = JSON.parse(decodeURIComponent(escape(window.atob(base64))));
+             //pre.textContent = JSON.stringify(payload,null,2);
+             pre.textContent = "sub: "+payload.sub;
+         }
+     }
+     window.addEventListener("load",init);
+    </script>
+  </head>
+  <body>
+    <h1>Yahoo!Japan sub getter</h1>
+    <p><a id="auth_req" href="">認証</a></p>
+    <pre id="result">
+    </pre>
+    <p>認証に成功したら上の記号と学籍番号を教えて下さい。</p>
+    <p><a href="./">もどる</a></p>
+  </body>
+</html>

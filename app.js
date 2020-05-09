@@ -15,6 +15,7 @@ const google_auth = require('./google_auth');
 const yahoo_auth = require('./yahoo_auth');
 const local_auth = require('./local_auth');
 const admin = require('./admin');
+const auto_register = require('./auto_register');
 
 const extless = require('./extless');
 
@@ -223,6 +224,7 @@ const allowCrossDomain = function(req,res,next) {
     expressApp.use('/auth/yahoo',yahoo_auth);
     expressApp.use('/auth/local',local_auth);
     expressApp.use('/admin',admin);
+    expressApp.use('/auto_register',auto_register);
 
     expressApp.get('/robots.txt',(req,res)=>{
         res.header('Content-Type', 'text/plain');
