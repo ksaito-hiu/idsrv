@@ -4,22 +4,30 @@ const { Issuer, generators } = require('openid-client');
 const config = require('./config.json');
 
 (async function() {
+    let tryCount = 0;
     let yahooClient;
-    try {
-        const issuer = await Issuer.discover('https://auth.login.yahoo.co.jp/yconnect/v2');
-        //console.log('Discovered issuer %s %O',
-        //            issuer.issuer,issuer.metadata)
-        yahooClient = new issuer.Client({
-            client_id: config.yahooAPI.client_id,
-            client_secret: config.yahooAPI.client_secret,
-            redirect_uris: config.yahooAPI.redirect_uris,
-            response_types: ['code'],
-            // id_token_signed_response_alg (default "RS256")
-            // token_endpoint_auth_method (default "client_secret_basic")
-        });
-    } catch(err) {
-        console.log('Cannot search yahoo openid-op.');
+    const initYahooClient = async function() {
+        try {
+            const issuer = await Issuer.discover('https://auth.login.yahoo.co.jp/yconnect/v2');
+            //console.log('Discovered issuer %s %O',
+            //            issuer.issuer,issuer.metadata)
+            yahooClient = new issuer.Client({
+                client_id: config.yahooAPI.client_id,
+                client_secret: config.yahooAPI.client_secret,
+                redirect_uris: config.yahooAPI.redirect_uris,
+                response_types: ['code'],
+                // id_token_signed_response_alg (default "RS256")
+                // token_endpoint_auth_method (default "client_secret_basic")
+            });
+        } catch(err) {
+            console.log('Cannot search yahoo openid-op. (tryCount='+tryCount+')');
+            tryCount++;
+            let t = 1000*tryCount*tryCount;
+            t = t>10*60*1000?10*60*1000:t;
+            setTimeout(initYahooClient,t);
+        }
     }
+    await initYahooClient();
 
     router.get('/login',(req,res)=>{
         const code_verifier = generators.codeVerifier();

@@ -4,6 +4,7 @@ const { Issuer, generators } = require('openid-client');
 const config = require('./config.json');
 
 (async function() {
+    let tryCount = 0;
     let localClient;
     router.wakeup = async function() {
         try {
@@ -19,7 +20,11 @@ const config = require('./config.json');
                 // token_endpoint_auth_method (default "client_secret_basic")
             });
         } catch(err) {
-            console.log('Cannot search local openid-op.');
+            console.log('Cannot search local openid-op. (tryCount='+tryCount+')');
+            tryCount++;
+            let t = 1000*tryCount*tryCount;
+            t = t>10*60*1000?10*60*1000:t;
+            setTimeout(router.wakeup,t);
         }
     }
 
