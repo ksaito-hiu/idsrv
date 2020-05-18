@@ -3,9 +3,9 @@ const router = express.Router();
 const config = require('./config.json');
 
 (async function() {
-    router.get('/:uid',(req,res)=>{
-        const uid = req.params.uid;
-        const ttl = `@prefix : <https://id.do-johodai.ac.jp/people/${uid}#>.
+  router.get('/:uid',(req,res)=>{
+    const uid = req.params.uid;
+    const ttl = `@prefix : <https://id.do-johodai.ac.jp/people/${uid}#>.
 @prefix solid: <http://www.w3.org/ns/solid/terms#>.
 @prefix n0: <http://xmlns.com/foaf/0.1/>.
 @prefix schem: <http://schema.org/>.
@@ -22,9 +22,9 @@ const config = require('./config.json');
     n:fn "Dummy name".
 
 `;
-        res.setHeader('content-type', 'text/turtle');
-        res.send(ttl);
-    });
+    res.setHeader('content-type', 'text/turtle');
+    res.send(ttl);
+  });
 })();
 
 module.exports = router;
