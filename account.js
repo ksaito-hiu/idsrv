@@ -13,6 +13,7 @@ db.defaults({
 
 function Account() {
   const self = {};
+  let DB = null;
   self.setProvider = function(provider) {
     self.prov = provider;
   }
@@ -45,9 +46,9 @@ function Account() {
     // This would ideally be just a check whether the account is still in your storage
     let account;
     if (id.startsWith('google-'))
-      account = db.get('users').find({ googleId: id }).value();
+      account = db.get('users').find({ googleId: id.substring(7) }).value();
     else if (id.startsWith('yahoo-'))
-      account = db.get('users').find({ yahooId: id }).value();
+      account = db.get('users').find({ yahooId: id.substring(6) }).value();
     if (!account) {
       return undefined;
     }
@@ -70,6 +71,9 @@ function Account() {
       },
     };
   };
+  self.connect = function(mongoClient) {
+    DB = mongoClient.db('idsrv_users');
+  }
   return self;
 }
 

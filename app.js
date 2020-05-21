@@ -8,7 +8,9 @@ const fetch = require('node-fetch');
 const config = require('./config.json');
 const clients = require('./clients.json');
 
-const MongoAdapter = require('./mongodb');
+const { MongoClient } = require('mongodb');
+const MongoAdapter = require('./mongo_adapter');
+let mongoClient = null;
 const jwks = require('./jwks.json');
 
 const google_auth = require('./google_auth');
@@ -16,6 +18,7 @@ const yahoo_auth = require('./yahoo_auth');
 const local_auth = require('./local_auth');
 const admin = require('./admin');
 const auto_register = require('./auto_register');
+auto_register.set_google_auth(google_auth); // google_auth.googleClientを再利用するため
 const people = require('./people');
 
 const extless = require('./extless');
@@ -49,7 +52,13 @@ const allowCrossDomain = function(req,res,next) {
 
 (async function() {
   const oidc_uri = 'https://'+config.server.hostname
-  await MongoAdapter.connect();
+  mongoClient = new MongoClient('mongodb://127.0.0.1:27017',{
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  });
+  await mongoClient.connect();
+  MongoAdapter.connect(mongoClient);
+  Account.connect(mongoClient);
   const oidc = new Provider(oidc_uri, {
     adapter: MongoAdapter,
     "clients": clients.settings,

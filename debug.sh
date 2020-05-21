@@ -41,5 +41,5 @@ cd $INSTALL_DIR
 #デバッグ情報を出す
 export DEBUG='oidc-provider:*'
 
-node app.js
+node --unhandled-rejections=strict app.js
 

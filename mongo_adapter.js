@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 
 // npm i mongodb@^3.0.0
-const { MongoClient } = require('mongodb'); // eslint-disable-line import/no-unresolved
+//const { MongoClient } = require('mongodb'); // eslint-disable-line import/no-unresolved
 const snakeCase = require('lodash/snakeCase');
 
 let DB;
@@ -124,13 +124,17 @@ class MongoAdapter {
 
   // This is not part of the required or supported API, all initialization should happen before
   // you pass the adapter to `new Provider`
+  /*
   static async connect() {
-    //const connection = await MongoClient.connect(process.env.MONGODB_URI, {
-    const connection = await MongoClient.connect('mongodb://127.0.0.1:27017', {
+    const connection = await MongoClient.connect(process.env.MONGODB_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true
     });
     DB = connection.db(connection.s.options.dbName);
+  }
+  */
+  static connect(mongoClient) {
+    DB = mongoClient.db('oidc_adapter');
   }
 }
 

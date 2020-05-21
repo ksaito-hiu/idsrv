@@ -78,6 +78,9 @@ const config = require('./config.json');
     const theUrl = googleClient.endSessionUrl(params);
     res.redirect(theUrl);
   });
+
+  // 別の所でも再利用したいので
+  router.googleClient = googleClient;
 })();
 
 module.exports = router;
