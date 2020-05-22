@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const config = require('./config.json');
 
-(async function() {
+const init = async function(config) {
   router.get('/',(req,res)=>{
     if (!req.session) {
       res.render('message',{message:"You have to login."});
@@ -18,6 +17,8 @@ const config = require('./config.json');
       res.render('message',{message:"You don't have permission."});
     }
   });
-})();
 
-module.exports = router;
+  return router;
+};
+
+module.exports = init;

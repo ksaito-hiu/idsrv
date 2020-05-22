@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const { Issuer, generators } = require('openid-client');
-const config = require('./config.json');
 
-(async function() {
+const init = async function(config) {
   let tryCount = 0;
   let localClient;
-  router.wakeup = async function() {
+  const initLocalClient = async function() {
     try {
       const issuer = await Issuer.discover(config.localAPI.issuer);
       //console.log('Discovered issuer %s %O',
@@ -27,6 +26,7 @@ const config = require('./config.json');
       setTimeout(router.wakeup,t);
     }
   }
+  setTimeout(initLocalClient,10000);
 
   router.get('/login',(req,res)=>{
     const code_verifier = generators.codeVerifier();
@@ -75,6 +75,8 @@ const config = require('./config.json');
     const theUrl = localClient.endSessionUrl(params);
     res.redirect(theUrl);
   });
-})();
 
-module.exports = router;
+  return router;
+};
+
+module.exports = init;

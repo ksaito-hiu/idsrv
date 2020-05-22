@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { Issuer, generators } = require('openid-client');
-const config = require('./config.json');
 
-(async function() {
+const init = async function(config) {
   let tryCount = 0;
   let googleClient = null;
   const initGoogleClient = async function() {
@@ -82,6 +81,8 @@ const config = require('./config.json');
   // 別の所でも再利用したいので
   router.googleClient = googleClient;
   router.generators = generators;
-})();
 
-module.exports = router;
+  return router;
+};
+
+module.exports = init;

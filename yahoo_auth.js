@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { Issuer, generators } = require('openid-client');
-const config = require('./config.json');
 
-(async function() {
+const init = async function(config) {
   let tryCount = 0;
   let yahooClient;
   const initYahooClient = async function() {
@@ -78,6 +77,8 @@ const config = require('./config.json');
     const theUrl = yahooClient.endSessionUrl(params);
     res.redirect(theUrl);
   });
-})();
 
-module.exports = router;
+  return router;
+};
+
+module.exports = init;

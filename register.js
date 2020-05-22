@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const config = require('./config.json');
 
-(async function() {
+const init = async function(config) {
   let ga = null; // <- google_authを入れる
   // google_auth.googleClientを再利用するため
   router.set_google_auth = function(google_auth) {
@@ -18,6 +17,8 @@ const config = require('./config.json');
   router.get('/yahoo_sub_getter',(req,res)=>{
     res.render('register/yahoo_sub_getter');
   });
-})();
 
-module.exports = router;
+  return router;
+};
+
+module.exports = init;

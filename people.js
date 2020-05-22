@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const config = require('./config.json');
 
-(async function() {
+const init = async function(config) {
   router.get('/:uid',(req,res)=>{
     const uid = req.params.uid;
     const ttl = `@prefix : <https://id.do-johodai.ac.jp/people/${uid}#>.
@@ -25,6 +24,8 @@ const config = require('./config.json');
     res.setHeader('content-type', 'text/turtle');
     res.send(ttl);
   });
-})();
 
-module.exports = router;
+  return router;
+};
+
+module.exports = init;
