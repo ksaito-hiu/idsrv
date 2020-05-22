@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    <h1>Top</h1>
+    <p>Message: <%=msg %></p>
+    <ul>
+      <li><a href="/auth/local/login">Local login</a></li>
+      <li><a href="/auth/local/logout">Local logout</a></li>
+      <li><a href="/register/">Register</a></li>
+    <% if (admin===true) { %>
+      <li><a href="/admin">admin</li></p>
+    <% } %>
+    </ul>
+  </body>
+</html>

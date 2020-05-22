@@ -81,6 +81,7 @@ const config = require('./config.json');
 
   // 別の所でも再利用したいので
   router.googleClient = googleClient;
+  router.generators = generators;
 })();
 
 module.exports = router;

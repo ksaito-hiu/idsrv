@@ -52,9 +52,9 @@ const config = require('./config.json');
       //const userinfo = await googleClient.userinfo(tokenSet.access_token);
       req.session.id_tokenX = tokenSet.id_token;
       req.session.webid = tokenSet.claims().sub;
-      res.render('RP/result.ejs',{result: 'id_token = '+tokenSet.id_token});
+      res.render('local/result.ejs',{result: 'id_token = '+tokenSet.id_token});
     } catch(err) {
-      res.render('RP/error.ejs',{message: JSON.stringify(err)});
+      res.render('error.ejs',{message: JSON.stringify(err)});
     }
   });
 

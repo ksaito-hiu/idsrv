@@ -17,8 +17,8 @@ const google_auth = require('./google_auth');
 const yahoo_auth = require('./yahoo_auth');
 const local_auth = require('./local_auth');
 const admin = require('./admin');
-const auto_register = require('./auto_register');
-auto_register.set_google_auth(google_auth); // google_auth.googleClientを再利用するため
+const register = require('./register');
+register.set_google_auth(google_auth); // google_auth.googleClientを再利用するため
 const people = require('./people');
 
 const extless = require('./extless');
@@ -168,10 +168,10 @@ const allowCrossDomain = function(req,res,next) {
       const client = await oidc.Client.find(params.client_id);
 
       if (prompt.name === 'login') {
-        return res.render('OP/login',{ provider_session_uid: details.uid });
+        return res.render('login',{ provider_session_uid: details.uid });
       }
 
-      return res.render('OP/interaction', {
+      return res.render('interaction', {
         client,
         uid,
         details: prompt.details,
@@ -234,7 +234,7 @@ const allowCrossDomain = function(req,res,next) {
   expressApp.use('/auth/yahoo',yahoo_auth);
   expressApp.use('/auth/local',local_auth);
   expressApp.use('/admin',admin);
-  expressApp.use('/auto_register',auto_register);
+  expressApp.use('/register',register);
   expressApp.use('/people',people);
 
   expressApp.get('/robots.txt',(req,res)=>{
@@ -253,7 +253,13 @@ const allowCrossDomain = function(req,res,next) {
     } else {
       str = 'You are not logged in. (no session)';
     }
-    res.render('OP/index.ejs',{msg:str});
+    let admin;
+    if (config.admin.includes(req.session.webid)) {
+      admin = true;
+    } else {
+      admin = false;
+    }
+    res.render('index.ejs',{msg:str,admin});
   });
 
   // oidc-providerはプレフィックス付けて運用する。
