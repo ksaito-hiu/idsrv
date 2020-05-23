@@ -1,16 +1,14 @@
 /*
- * このidsrvというrouterはサーバーのルート(/)に配備して使う前提で
- * 作られてます。また、express-sessionが設定済みで、テンプレート
- * エンジンにejsが設定されておりviewsのディレクトリも設定済みで
- * あることも前提となっています。routerを生成するには適切な設定
- * ファイルを用意して以下のようにします。
+ * このidsrvというexpress appはサーバーのルート(/)に配備して使う前提で
+ * 作られてます。
  * const config = require('./config.json');
  * const idsrv = await require('./idsrv')(config);
- * という感じにやります。
+ * という感じにやります。awaitを使うのでasyncな関数で
+ * 囲まれた場所でやって下さい。
  */
 
 const express = require('express');
-const router = express.Router();
+const session = require('express-session');
 const bodyParser = require('body-parser');
 const Provider = require('oidc-provider');
 const fetch = require('node-fetch');
@@ -45,6 +43,20 @@ const allowCrossDomain = function(req,res,next) {
 const init = async function(config) {
   const jwks = require(config.server.jwks);
 
+  const idsrv = express();
+  idsrv.set('trust proxy', true);
+  idsrv.set('view engine', 'ejs');
+  idsrv.set('views', config.server.views);
+  idsrv.use(session({
+    secret: config.server.session.secret,
+    resave: false,
+    saveUninitialized: false, //??? しかも要るかな？
+    httpOnly: true, // openid-clientパッケージの要請
+    secure: true, // openid-clientパッケージの要請
+    cookie: { maxAge: config.server.session.maxAge }
+  }));
+
+
   const google_auth = await require('./google_auth')(config);
   const yahoo_auth = await require('./yahoo_auth')(config);
   const local_auth = await require('./local_auth')(config);
@@ -69,10 +81,10 @@ const init = async function(config) {
     "clients": clients.settings,
     cookies: {
       long: { signed: true,
-              maxAge: config.server.cookies.maxAge
+              maxAge: config.server.op_cookies.maxAge
             },
       short: { signed: true },
-      keys: config.server.cookies.keys
+      keys: config.server.op_cookies.keys
     },
     jwks,
     findAccount: Account.findAccount,
@@ -138,7 +150,7 @@ const init = async function(config) {
 
   // サーバー全体に対して
   // CORS(Cross-Origin Resource Sharing)
-  router.use(allowCrossDomain);
+  idsrv.use(allowCrossDomain);
 
   const parse = bodyParser.urlencoded({ extended: false });
 
@@ -148,7 +160,7 @@ const init = async function(config) {
     next();
   }
 
-  router.get('/interaction/:uid', setNoCache, async (req, res, next) => {
+  idsrv.get('/interaction/:uid', setNoCache, async (req, res, next) => {
     try {
       const details = await oidc.interactionDetails(req);
       const { uid, prompt, params } = details;
@@ -171,7 +183,7 @@ const init = async function(config) {
     }
   });
 
-  router.get('/interaction/:uid/login', setNoCache, parse, async (req, res, next) => {
+  idsrv.get('/interaction/:uid/login', setNoCache, parse, async (req, res, next) => {
     try {
       const { uid, prompt, params } = await oidc.interactionDetails(req);
       const client = await oidc.Client.find(params.client_id);
@@ -190,7 +202,7 @@ const init = async function(config) {
     }
   });
 
-  router.post('/interaction/:uid/confirm', setNoCache, parse, async (req, res, next) => {
+  idsrv.post('/interaction/:uid/confirm', setNoCache, parse, async (req, res, next) => {
     try {
       const result = {
         consent: {
@@ -205,7 +217,7 @@ const init = async function(config) {
     }
   });
 
-  router.get('/interaction/:uid/abort', setNoCache, async (req, res, next) => {
+  idsrv.get('/interaction/:uid/abort', setNoCache, async (req, res, next) => {
     try {
       const result = {
         error: 'access_denied',
@@ -218,19 +230,14 @@ const init = async function(config) {
     }
   });
 
-  router.use('/auth/google',google_auth);
-  router.use('/auth/yahoo',yahoo_auth);
-  router.use('/auth/local',local_auth);
-  router.use('/admin',admin);
-  router.use('/register',register);
-  router.use('/people',people);
+  idsrv.use('/auth/google',google_auth);
+  idsrv.use('/auth/yahoo',yahoo_auth);
+  idsrv.use('/auth/local',local_auth);
+  idsrv.use('/admin',admin);
+  idsrv.use('/register',register);
+  idsrv.use('/people',people);
 
-  router.get('/robots.txt',(req,res)=>{
-    res.header('Content-Type', 'text/plain');
-    res.end("User-agent: *\nDisallow: /\n");
-  });
-
-  router.get('/',(req,res)=>{
+  idsrv.get('/',(req,res)=>{
     let str;
     if (!!req.session) {
       if (!!req.session.webid) {
@@ -259,8 +266,8 @@ const init = async function(config) {
   // 今回の場合301でリダイレクトするのはダメで、
   // nginxでrewriteで簡単に設定できなかったので
   // node-fetchを使って以下のようにした。
-  router.use(config.server.prefix,oidc.callback);
-  router.get('/.well-known/openid-configuration',
+  idsrv.use(config.server.prefix,oidc.callback);
+  idsrv.get('/.well-known/openid-configuration',
                  async (req,res) => {
                    try {
                      const opt = {
@@ -285,14 +292,14 @@ const init = async function(config) {
                  });
 
   // 基本的に、静的なファイルを配信する。
-  //router.use(express.static(config.server.static));
+  //idsrv.use(express.static(config.server.static));
 
   // 基本的に、静的なファイルを配信する。
   // extlessは拡張子無しのアクセスに対応するexpress.static
   const extless_router = extless.Router(config.server.static,config.extless);
-  router.use(extless_router);
+  idsrv.use(extless_router);
 
-  return router;
+  return idsrv;
 };
 
 module.exports = init;
