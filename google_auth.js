@@ -18,6 +18,8 @@ const init = async function(config) {
         // id_token_signed_response_alg (default "RS256")
         // token_endpoint_auth_method (default "client_secret_basic")
       });
+      // 別の所でも再利用したいので
+      router.googleClient = googleClient;
     } catch(err) {
       console.log('Cannot search google openid-op. (tryCount='+tryCount+')');
       tryCount++;
@@ -77,10 +79,6 @@ const init = async function(config) {
     const theUrl = googleClient.endSessionUrl(params);
     res.redirect(theUrl);
   });
-
-  // 別の所でも再利用したいので
-  router.googleClient = googleClient;
-  router.generators = generators;
 
   return router;
 };

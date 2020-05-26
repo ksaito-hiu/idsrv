@@ -63,6 +63,7 @@ const init = async function(config) {
   const admin = await require('./admin')(config);
   const register = await require('./register')(config);
   register.set_google_auth(google_auth); // google_auth.googleClientを再利用するため
+  register.set_yahoo_auth(yahoo_auth); // yahoo_auth.googleClientを再利用するため
   const people = await require('./people')(config);
   const extless = require('./extless');
   // simple account model for this application, user list is defined like so

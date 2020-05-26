@@ -18,6 +18,8 @@ const init = async function(config) {
         // id_token_signed_response_alg (default "RS256")
         // token_endpoint_auth_method (default "client_secret_basic")
       });
+      // 別の所でも再利用したいので
+      router.yahooClient = yahooClient;
     } catch(err) {
       console.log('Cannot search yahoo openid-op. (tryCount='+tryCount+')');
       tryCount++;
