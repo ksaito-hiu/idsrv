@@ -11,7 +11,7 @@ db.defaults({
   users: initial_users.users
 }).write();
 
-function Account() {
+function Account(config) {
   const self = {};
   let DB = null;
   self.setProvider = function(provider) {
@@ -53,13 +53,18 @@ function Account() {
       return undefined;
     }
 
+    // ここで返す値なのだけど、solid-auth-client.bundle.jsの
+    // 実装をテストした感じではsubにwebidを設定してwebidという
+    // claimsは付けずに返事してる。以前使用を調べた時には
+    // webidというclaimsが優先される感じかと思ったので、
+    // 一応以下のようにsubとwebidの両方にwebidの情報をセットしてみる。
     return {
       accountId: account.id,
       // and this claims() method would actually query to retrieve the account claims
       async claims() {
         const cs = {
-          sub: account.id,
-          webid: account.webid,
+          sub: config.server.id2webid(account.id),
+          webid: config.server.id2webid(account.id),
           name: 'dummy',
           birthdate: 'dummy',
           gender: 'dummy',

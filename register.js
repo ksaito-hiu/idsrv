@@ -29,11 +29,7 @@ const init = async function(config) {
     }
     // WebIDからuidを切り出してセッションに保存
     // 以下情報大のWebIDの付け方に依存
-    let n = webid.lastIndexOf("/");
-    let uid = webid.substring(n+1);
-    n = uid.lastIndexOf("#");
-    uid = uid.substring(0,n);
-    req.session.uid = uid;
+    req.session.uid = config.server.webid2id(webid);
     next();
   }
 
@@ -77,11 +73,11 @@ const init = async function(config) {
         res.render('error',{message:"Your email is not verified by google."});
         return;
       }
-      if (!email.match(/^s\d{7}@s.do-johodai.ac.jp$/)) {
-        res.render('error',{message:"Your google account may not be provided by HIU."});
+      const id = config.server.email2id(email);
+      if (!id) {
+        res.render('error',{message:"Your can not use this auto register method. Ask your admin."});
         return;
       }
-      const id = email.match(/^s(\d{7})@s.do-johodai.ac.jp$/)[1];
       res.render('message',{message:"google sub="+sub+", id="+id+", email="+email+" ."});
     } catch(err) {
       res.render('error',{message:"error="+err+"."});

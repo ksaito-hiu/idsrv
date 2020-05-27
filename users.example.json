@@ -1,10 +1,9 @@
 {
   "users": [
     {
-      "id": "https://yourdomain.com/people/yourname#me",
+      "id": "your_id",
       "googleId": "ID_NUMBER_MAYBE_21_DIGITS",
-      "yahooId": "ID_STRING_MAYBE_16_CHARS",
-      "webid": "https://yourdomain.com/people/yourname#me"
+      "yahooId": "ID_STRING_MAYBE_16_CHARS"
     }
   ]
 }

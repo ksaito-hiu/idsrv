@@ -43,6 +43,33 @@ const allowCrossDomain = function(req,res,next) {
 const init = async function(config) {
   const jwks = require(config.server.jwks);
 
+  // emailをidに変換する関数が設定されていなければ以下の
+  // 関数で処理する。(デフォルト実装はgmailを過程して、
+  // その@より左をidにする。ここでマッチしなかった場合は
+  // 許可されていないメールアドレスということで自動
+  // 登録の対象外とする。
+  if (!config.server.email2id) {
+    config.server.email2id = function(email) {
+      const m = email.match(/^(.*)@gmail.com$/);
+      if (!m) return null;
+      return m[1];
+    };
+  }
+  // idをWebIDに変換する関数が設定されてなければ以下の
+  // 関数で処理する。
+  if (!config.server.id2webid) {
+    config.server.id2webid = function(id) {
+      return 'https://'+config.server.hostname+'/people/'+id+'#me';
+    };
+  }
+  // WebIDをidに変換する関数が設定されてなければ以下の
+  // 関数で処理する。
+  if (!config.server.webid2id) {
+    config.server.webid2id = function(webid) {
+      return webid.match(/^.*\/([^\/]+)#[^#]+$/)[1];
+    };
+  }
+
   const idsrv = express();
   idsrv.set('trust proxy', true);
   idsrv.set('view engine', 'ejs');
@@ -67,7 +94,7 @@ const init = async function(config) {
   const people = await require('./people')(config);
   const extless = require('./extless');
   // simple account model for this application, user list is defined like so
-  const Account = require('./account')();
+  const Account = require('./account')(config);
 
   const oidc_uri = 'https://'+config.server.hostname
   mongoClient = new MongoClient('mongodb://127.0.0.1:27017',{
