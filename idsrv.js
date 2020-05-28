@@ -104,6 +104,7 @@ const init = async function(config) {
   await mongoClient.connect();
   MongoAdapter.connect(mongoClient);
   Account.connect(mongoClient);
+  register.setMongoClient(mongoClient);
   const oidc = new Provider(oidc_uri, {
     adapter: MongoAdapter,
     "clients": clients.settings,

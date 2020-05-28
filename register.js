@@ -2,20 +2,18 @@ const express = require('express');
 const router = express.Router();
 const { generators } = require('openid-client');
 
-
-
-
-
-// 以下のコールバックURLなんとかして自動で上手く設定されるようにしないと
-const g_callback = 'https://id.do-johodai.ac.jp/register/g_callback';
-const y_callback = 'https://id.do-johodai.ac.jp/register/y_callback';
-
-
-
-
 const init = async function(config) {
   let ga = null; // <- google_authを入れる
   let ya = null; // <- yahoo_authを入れる
+  let colUsers = null; // <- MongoDBにユーザー情報入れるためのcollection
+
+
+
+  // 以下のコールバックURLもうちょっと上手く設定されるようにしないと。GAHA
+  const g_callback = `https://${config.server.hostname}/register/g_callback`;
+  const y_callback = `https://${config.server.hostname}/register/y_callback`;
+
+
 
   // ログインチェック AND uid取得
   function loginCheck(req,res,next) {
@@ -28,7 +26,6 @@ const init = async function(config) {
       return;
     }
     // WebIDからuidを切り出してセッションに保存
-    // 以下情報大のWebIDの付け方に依存
     req.session.uid = config.server.webid2id(webid);
     next();
   }
@@ -40,6 +37,12 @@ const init = async function(config) {
   // google_auth.googleClientを再利用するため
   router.set_yahoo_auth = function(yahoo_auth) {
     ya = yahoo_auth;
+  };
+  // MongoDBのクライアントを受け取ってDBと接続し、
+  // ユーザー情報を保存するためのコレクションを確保
+  router.setMongoClient = function(mongoClient) {
+    // DBの名前はidsrvで、col名はusersということで決め打ち
+    colUsers = mongoClient.db('idsrv').collection('users');
   };
 
   // ***** google認証を利用してユーザーを自動登録するための仕組み *****
@@ -78,7 +81,14 @@ const init = async function(config) {
         res.render('error',{message:"Your can not use this auto register method. Ask your admin."});
         return;
       }
-      res.render('message',{message:"google sub="+sub+", id="+id+", email="+email+" ."});
+      const as = colUsers.find({"id":id}).toArray();
+      if (as.length>0) {
+        res.render('error',{message:`Your had already registerd as ${id}.`});
+        return;
+      }
+      colUsers.insertOne({"id":id,googleId:sub});
+      req.session.webid = config.server.id2webid(id);
+      res.render('message',{message:"You are registerd! google sub="+sub+", id="+id+", email="+email+" ."});
     } catch(err) {
       res.render('error',{message:"error="+err+"."});
     }
@@ -95,10 +105,9 @@ const init = async function(config) {
       return;
     }
     // WebIDからuidを切り出す
-    // 以下情報大のWebIDの付け方に依存
-    let uid = webid.match(/^https:\/\/id.do-johodai.ac.jp\/people\/(.*)#me$/)[1];
+    let uid = config.server.webid2id(webid);
     if (!uid) {
-      res.render('error',{message:"Strange! You are not a HIU member."});
+      res.render('error',{message:"Strange! You are not a valid user.(1)"});
       return;
     }
 
@@ -126,10 +135,9 @@ const init = async function(config) {
       return;
     }
     // WebIDからuidを切り出す
-    // 以下情報大のWebIDの付け方に依存
-    let uid = webid.match(/^https:\/\/id.do-johodai.ac.jp\/people\/(.*)#me$/)[1];
+    let uid = config.server.webid2id(webid);
     if (!uid) {
-      res.render('error',{message:"Strange! You are not a HIU member."});
+      res.render('error',{message:"Strange! You are not a valid user.(2)"});
       return;
     }
 
@@ -140,7 +148,15 @@ const init = async function(config) {
     try {
       const tokenSet = await ya.yahooClient.callback(y_callback, params, { code_verifier });
       const sub = tokenSet.claims().sub;
-      res.render('message',{message:"yahoo sub="+sub+", uid="+uid+" ."});
+      const r = await colUsers.findOneAndUpdate({id:uid},{$set: {yahooId:sub}},{
+        returnOriginal: false,
+        upsert: false
+      });
+      if (r.value.yahooId !== sub) {
+        res.render('error',{message:"Strange! Your data could not be found on DB."});
+        return;
+      }
+      res.render('message',{message:"Your yahoo id is registered. sub="+sub+", uid="+uid+" ."});
     } catch(err) {
       res.render('error',{message:"error="+err+"."});
     }

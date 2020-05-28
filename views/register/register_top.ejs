@@ -5,23 +5,34 @@
   </head>
   <body>
     <h1>register</h1>
-    <p>本当はこのページでユーザーの自動登録ができるようにするつもりでしたが
-      まだ実装できていません。ということで、以下の2つのリンク先でGoogleと
-      Yahooにログインして出てきたsubという数値や記号と学籍番号の情報を
-      管理者に連絡して登録してもらって下さい。</p>
-    <p>ただし、Googleの方は個人で取ったアカウントとかではなく、
-      大学から与えられたアカウントでログインしないといけないので、
-      間違えないよう気をつけて下さい。</p>
+    <p>アカウント登録のページです。ここでの操作が上手くいかない場合で、
+      複数のGoogleアカウントやYahoo! JAPAN IDでログインしているような場合は
+      一度全てのアカウントでログアウトしてから試してみて下さい。
+    </p>
     <ul>
-      <li><a href="./google_sub_getter">Google</a></li>
-      <li><a href="./yahoo_sub_getter">Yahoo</a></li>
+      <li><a href="https://accounts.google.com/Logout">全てのGoogleアカウントをログアウト</a></li>
+      <li><a href="https://accounts.yahoo.co.jp/profile">Yahoo! JAPANの登録情報ページでログアウト</a></li>
+    </ul>
+    <hr/>
+    <p>自動登録が可能な場合は、以下の「Googleアカウントで自動登録」の
+      リンクをクリックして下さい。</p>
+    <ul>
+      <li><a href="./google_login">Googleアカウントで自動登録</a></li>
+    </ul>
+    <p>すでに登録済みでGoogleアカウントでログインできるけど、Yahoo! JAPAN ID
+      でもログインできるようにするには、以下の「Yahoo! JAPAN IDを登録」の
+      リンクをクリックして下さい。</p>
+    <ul>
+      <li><a href="./yahoo_login">Yahoo! JAPAN IDを登録</a></li>
+    </ul>
+    
+    <p>自動登録が許可されていない人は、以下の「GoogleアカウントのIDを調べる」と
+      「Yahoo! JAPAN IDを調べる」のページを開き、そこで表示されたIDを
+      管理者に伝えて下さい。</p>
+    <ul>
+      <li><a href="./google_sub_getter">GoogleアカウントのIDを調べる</a></li>
+      <li><a href="./yahoo_sub_getter">Yahoo! JAPAN IDを調べる</a></li>
     </ul>
     <p><a href="/">Back to the top page.</a></p>
-    <hr/>
-    <p>以下、実験。</p>
-    <ul>
-      <li><a href="./google_login">Google</a></li>
-      <li><a href="./yahoo_login">Yahoo</a></li>
-    </ul>
   </body>
 </html>

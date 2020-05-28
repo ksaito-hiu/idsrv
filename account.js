@@ -13,7 +13,7 @@ db.defaults({
 
 function Account(config) {
   const self = {};
-  let DB = null;
+  let colUsers = null; // <- MongoDBにユーザー情報入れるためのcollection
   self.setProvider = function(provider) {
     self.prov = provider;
   }
@@ -45,10 +45,23 @@ function Account(config) {
 
     // This would ideally be just a check whether the account is still in your storage
     let account;
-    if (id.startsWith('google-'))
-      account = db.get('users').find({ googleId: id.substring(7) }).value();
-    else if (id.startsWith('yahoo-'))
-      account = db.get('users').find({ yahooId: id.substring(6) }).value();
+    if (id.startsWith('google-')) {
+      const gid = id.substring(7);
+      account = db.get('users').find({ googleId: gid }).value();
+      if (!account) {
+        const as = await colUsers.find({googleId: gid }).toArray();
+        if (as.length>0)
+          account = as[0];
+      }
+    } else if (id.startsWith('yahoo-')) {
+      const yid = id.substring(6);
+      account = db.get('users').find({ yahooId: yid }).value();
+      if (!account) {
+        const as = await colUsers.find({yahooId: yid }).toArray();
+        if (as.length>0)
+          account = as[0];
+      }
+    }
     if (!account) {
       return undefined;
     }
@@ -77,7 +90,7 @@ function Account(config) {
     };
   };
   self.connect = function(mongoClient) {
-    DB = mongoClient.db('idsrv_users');
+    colUsers = mongoClient.db('idsrv').collection('users');
   }
   return self;
 }

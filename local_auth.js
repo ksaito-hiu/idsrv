@@ -65,7 +65,7 @@ const init = async function(config) {
         /* response_type: '???', */
         /* scope: 'openid', */
         /* redirect_uri: 'http://localhost:3000/', */
-        post_logout_redirect_uri: 'https://id.do-johodai.ac.jp/',
+        post_logout_redirect_uri: `https://${config.server.hostname}/`,
         id_token_hint: req.session.id_tokenX,
       };
     } else {

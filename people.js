@@ -4,7 +4,7 @@ const router = express.Router();
 const init = async function(config) {
   router.get('/:uid',(req,res)=>{
     const uid = req.params.uid;
-    const ttl = `@prefix : <https://id.do-johodai.ac.jp/people/${uid}#>.
+    const ttl = `@prefix : <https://${config.server.hostname}/people/${uid}#>.
 @prefix solid: <http://www.w3.org/ns/solid/terms#>.
 @prefix n0: <http://xmlns.com/foaf/0.1/>.
 @prefix schem: <http://schema.org/>.
