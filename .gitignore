@@ -1,6 +1,5 @@
-node_modules/
-config.json
-clients.json
-users.json
-jwks.json
-
+/node_modules/
+/config.json
+/clients.json
+/users.json
+/jwks.json

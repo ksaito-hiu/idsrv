@@ -12,6 +12,8 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const Provider = require('oidc-provider');
 const fetch = require('node-fetch');
+const path = require('path');
+const i18n = require('i18n');
 
 const clients = require('./clients.json');
 
@@ -73,7 +75,14 @@ const init = async function(config) {
   const idsrv = express();
   idsrv.set('trust proxy', true);
   idsrv.set('view engine', 'ejs');
-  idsrv.set('views', config.server.views);
+  idsrv.set('views', path.join(__dirname,'views'));
+
+  i18n.configure({
+    locales: ['en', 'ja'],
+    directory: path.join(__dirname,'locales')
+  });
+  idsrv.use(i18n.init);
+
   idsrv.use(session({
     secret: config.server.session.secret,
     resave: false,
