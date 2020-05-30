@@ -5,14 +5,25 @@
   </head>
   <body>
     <h1>Admin</h1>
-    <p>Not implemented yet.</p>
-    <p>作りたい管理機能一覧</p>
+    <p>Under construction.</p>
     <ul>
-      <li>MongoDBのバックアップ</li>
-      <li>MongoDBのリストア</li>
-      <li>自動登録できないユーザーの登録</li>
-      <li>ユーザーの削除</li>
-      <li>ユーザー情報の編集</li>
+      <li><a href="./backup">MongoDBのバックアップ</a>
+        <ul>
+          <li>リンクを右クリックして「名前を付けてリンク先を保存」とかを選択するのが吉</li>
+        </ul>
+      </li>
+      <li><form action="./restore" method="post" enctype="multipart/form-data">
+          <input type="file" name="usersFile"/>
+          <button type="submit">MongoDBのリストア</button>
+        </form>
+        <ul>
+          <li>確認無しで全ユーザー情報消去してリストアするので注意</li>
+          <li>心配だったらMongoDB自体バックアップしてから。(弱気で<(__)>ペコリ)</li>
+        </ul>
+      </li>
+      <li>自動登録できないユーザーの登録(Not implemented yet.)</li>
+      <li>ユーザーの削除(Not implemented yet.)</li>
+      <li>ユーザー情報の編集(Not implemented yet.)</li>
       <li>(オントロジーのTurtleファイルなどのアップロード)</li>
     </ul>
     <p><a href="/">Back to the top page.</a></p>
