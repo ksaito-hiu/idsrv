@@ -9,6 +9,7 @@
 
 const express = require('express');
 const session = require('express-session');
+const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const Provider = require('oidc-provider');
 const fetch = require('node-fetch');
@@ -92,6 +93,7 @@ const init = async function(config) {
     cookie: { maxAge: config.server.session.maxAge }
   }));
 
+  idsrv.use(cookieParser());
 
   const google_auth = await require('./google_auth')(config);
   const yahoo_auth = await require('./yahoo_auth')(config);
@@ -287,13 +289,7 @@ const init = async function(config) {
     } else {
       str = 'You are not logged in. (no session)';
     }
-    let admin;
-    if (config.admin.includes(req.session.webid)) {
-      admin = true;
-    } else {
-      admin = false;
-    }
-    res.render('index.ejs',{msg:str,admin});
+    res.render('index.ejs',{msg:str});
   });
 
   // oidc-providerはプレフィックス付けて運用する。

@@ -2,6 +2,19 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <script>
+      function init() {
+        const li = document.querySelector("#admin");
+        // 以下cookieからログイン情報を読み出す方法
+        const webid = document.cookie.replace(/(?:(?:^|.*;\s*)webid\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+        const uid = document.cookie.replace(/(?:(?:^|.*;\s*)uid\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+        const admin = document.cookie.replace(/(?:(?:^|.*;\s*)admin\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+        if (admin!=='true') {
+          li.style.display = 'none';
+        }
+      }
+      window.addEventListener('load',init);
+    </script>
   </head>
   <body>
     <h1>Top</h1>
@@ -19,9 +32,7 @@
       <li><a href="/auth/local/login">Local login</a></li>
       <li><a href="/auth/local/logout">Local logout</a></li>
       <li><a href="/register/"><%= __('register') %></a></li>
-    <% if (admin===true) { %>
-      <li><a href="/admin/">admin</li></p>
-    <% } %>
+      <li id="admin"><a href="/admin/">admin</li></p>
     </ul>
   </body>
 </html>

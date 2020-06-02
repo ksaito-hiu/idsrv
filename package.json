@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/ksaito-hiu/idsrv#readme",
   "dependencies": {
+    "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
     "i18n": "^0.10.0",

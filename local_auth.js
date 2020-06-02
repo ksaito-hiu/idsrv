@@ -51,7 +51,18 @@ const init = async function(config) {
       const tokenSet = await localClient.callback(config.localAPI.redirect_uris[0], params, { code_verifier });
       //const userinfo = await googleClient.userinfo(tokenSet.access_token);
       req.session.id_tokenX = tokenSet.id_token;
-      req.session.webid = tokenSet.claims().sub;
+      const webid = tokenSet.claims().sub;
+      const uid = config.server.webid2id(webid);
+      let admin;
+      if (config.admin.includes(webid))
+        admin = true;
+      else
+        admin = false;
+      req.session.webid = webid;
+      req.session.uid = uid;
+      res.cookie('webid', webid, {maxAge: config.server.session.maxAge });
+      res.cookie('uid', uid, {maxAge: config.server.session.maxAge });
+      res.cookie('admin', admin, {maxAge: config.server.session.maxAge });
       res.render('local/result.ejs',{result: 'id_token = '+tokenSet.id_token});
     } catch(err) {
       res.render('error.ejs',{message: JSON.stringify(err)});
@@ -72,6 +83,10 @@ const init = async function(config) {
       params = {};
     }
     req.session.webid = null;
+    req.session.uid = null;
+    res.clearCookie('webid');
+    res.clearCookie('uid');
+    res.clearCookie('admin');
     const theUrl = localClient.endSessionUrl(params);
     res.redirect(theUrl);
   });
