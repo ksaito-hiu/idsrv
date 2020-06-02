@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Management of Clients</title>
+  </head>
+  <body>
+    <h1>Management of Clients</h1>
+    <p>Under construction.</p>
+    <p>You must restart the idsrv deamon to reflect settings changed on this page.</p>
+    <h2>New Registration</h2>
+    <form action="./client" method="post">
+      <input type="hidden" name="type" value="registration"/>
+      <p>Client ID: <input type="text" name="client_id"/></p>
+      <p>Client Secret: <input type="text" name="client_secret"/></p>
+      <div>
+        <p>Redirect URIs</p>
+        <textarea name="reirects">
+        </textarea>
+      </div>
+      <div>
+        <p>Post Logout Redirect URIs</p>
+        <textarea name="post_reirects">
+        </textarea>
+      </div>
+      <p><button type="submit">registrate</button></p>
+    </form>
+    <h2>Deletion</h2>
+    <form action="./client" method="post">
+      <input type="hidden" name="type" value="deletion"/>
+      <select name="client_id">
+        <% for (c of clients.settings) { %>
+          <option value="<%= c.client_id %>"><%= c.client_id %></option>
+        <% } %>
+      </select>
+      <p><button type="submit">delete</button></p>
+    </form>
+    <hr/>
+    <p><a href="/">Back to the top page.</a></p>
+  </body>
+</html>

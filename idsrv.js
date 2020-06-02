@@ -78,6 +78,11 @@ const init = async function(config) {
   idsrv.set('view engine', 'ejs');
   idsrv.set('views', path.join(__dirname,'views'));
 
+  // body-parserミドルウェア使わなくても以下の設定で
+  // req.bodyが使えるようになったらしい(express v4.16以上)
+  idsrv.use(express.json());
+  idsrv.use(express.urlencoded({ extended: true }));
+
   i18n.configure({
     locales: ['en', 'ja'],
     directory: path.join(__dirname,'locales')

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Management of Users</title>
+  </head>
+  <body>
+    <h1>Management of Users</h1>
+    <p>Under construction.</p>
+    <h2>Search</h2>
+    <form action="./user" method="post">
+      <input type="hidden" name="type" value="search"/>
+      <p>User ID: <input type="text" name="user_id"/></p>
+      <p><button type="submit">search</button></p>
+    </form>
+    <div>
+      <p>search_result</p>
+      <pre id="search_result" style="border:solid;">
+      </pre>
+    </div>
+    <h2>New Registration</h2>
+    <form action="./user" method="post">
+      <input type="hidden" name="type" value="registration"/>
+      <p>User ID: <input type="text" name="user_id"/></p>
+      <p>Google SUB: <input type="text" name="google_sub"/></p>
+      <p>Yahoo SUB: <input type="text" name="yahoo_sub"/></p>
+      <p><button type="submit">registrate</button></p>
+    </form>
+    <h2>Deletion</h2>
+    <form action="./user" method="post">
+      <input type="hidden" name="type" value="deletion"/>
+      <p>User ID: <input type="text" name="user_id"/></p>
+      <p><button type="submit">delete</button></p>
+    </form>
+    <p><a href="/">Back to the top page.</a></p>
+  </body>
+</html>

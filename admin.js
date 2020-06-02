@@ -1,5 +1,7 @@
 const express = require('express');
 const multer = require('multer');
+const fs = require("fs").promises;
+const path = require('path');
 
 const router = express.Router();
 
@@ -67,6 +69,59 @@ const init = async function(config) {
       } else {
         res.render('error.ejs',{message:"The file did not uploaded."});
       }
+    } catch(err) {
+      res.render('error.ejs',{message:err.toString()});
+    }
+  });
+
+  router.get('/user',loginCheck,permissionCheck,async (req,res)=> {
+    // 未実装
+    try {
+      res.render('admin/user');
+    } catch(err) {
+      res.render('error.ejs',{message:err.toString()});
+    }
+  });
+  router.post('/user',loginCheck,permissionCheck,async (req,res)=> {
+    // 未実装
+    try {
+      res.render('admin/user');
+    } catch(err) {
+      res.render('error.ejs',{message:err.toString()});
+    }
+  });
+
+  router.get('/client',loginCheck,permissionCheck,async (req,res)=> {
+    try {
+      const buff = await fs.readFile(path.join(__dirname,'clients.json'),"utf-8");
+      const clients = JSON.parse(buff);
+      // localクライアントは消せないように除外する
+      for (let i=0;i<clients.settings.length;i++) {
+        if (clients.settings[i].client_id === 'local') {
+          clients.settings.splice(i,1);
+          break;
+        }
+      }
+      res.render('admin/client',{"clients":clients});
+    } catch(err) {
+      res.render('error.ejs',{message:err.toString()});
+    }
+  });
+  router.post('/client',loginCheck,permissionCheck,async (req,res)=> {
+    // 未実装
+    // localというIDのクライアントは特別扱いしないといけないことを忘れないこと
+    // あと当然client_idが被ったりしないように気をつけるべし。
+    try {
+      const buff = await fs.readFile(path.join(__dirname,'clients.json'),"utf-8");
+      const clients = JSON.parse(buff);
+      // localクライアントは消せないように除外する
+      for (let i=0;i<clients.settings.length;i++) {
+        if (clients.settings[i].client_id === 'local') {
+          clients.settings.splice(i,1);
+          break;
+        }
+      }
+      res.render('admin/client',{clients});
     } catch(err) {
       res.render('error.ejs',{message:err.toString()});
     }
