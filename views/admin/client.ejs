@@ -6,7 +6,7 @@
   </head>
   <body>
     <h1>Management of Clients</h1>
-    <p>Under construction.</p>
+    <p>Message: <%= message %></p>
     <p>You must restart the idsrv deamon to reflect settings changed on this page.</p>
     <h2>New Registration</h2>
     <form action="./client" method="post">
@@ -15,13 +15,11 @@
       <p>Client Secret: <input type="text" name="client_secret"/></p>
       <div>
         <p>Redirect URIs</p>
-        <textarea name="reirects">
-        </textarea>
+        <textarea name="redirects"></textarea>
       </div>
       <div>
         <p>Post Logout Redirect URIs</p>
-        <textarea name="post_reirects">
-        </textarea>
+        <textarea name="post_redirects"></textarea>
       </div>
       <p><button type="submit">registrate</button></p>
     </form>
@@ -29,7 +27,7 @@
     <form action="./client" method="post">
       <input type="hidden" name="type" value="deletion"/>
       <select name="client_id">
-        <% for (c of clients.settings) { %>
+        <% for (c of clients) { %>
           <option value="<%= c.client_id %>"><%= c.client_id %></option>
         <% } %>
       </select>

@@ -103,7 +103,7 @@ const init = async function(config) {
   const google_auth = await require('./google_auth')(config);
   const yahoo_auth = await require('./yahoo_auth')(config);
   const local_auth = await require('./local_auth')(config);
-  const admin = await require('./admin')(config);
+  const admin = await require('./admin')(config,clients);
   const register = await require('./register')(config);
   register.set_google_auth(google_auth); // google_auth.googleClientを再利用するため
   register.set_yahoo_auth(yahoo_auth); // yahoo_auth.googleClientを再利用するため

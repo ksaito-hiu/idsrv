@@ -5,7 +5,7 @@ const path = require('path');
 
 const router = express.Router();
 
-const init = async function(config) {
+const init = async function(config,clients) {
   let colUsers = null;
 
   // MongoDBのクライアントを受け取ってDBを取得し、
@@ -93,35 +93,90 @@ const init = async function(config) {
 
   router.get('/client',loginCheck,permissionCheck,async (req,res)=> {
     try {
-      const buff = await fs.readFile(path.join(__dirname,'clients.json'),"utf-8");
-      const clients = JSON.parse(buff);
+      const cs = [];
       // localクライアントは消せないように除外する
       for (let i=0;i<clients.settings.length;i++) {
-        if (clients.settings[i].client_id === 'local') {
-          clients.settings.splice(i,1);
-          break;
-        }
+        if (clients.settings[i].client_id === 'local')
+          continue;
+        cs.push(clients.settings[i]);
       }
-      res.render('admin/client',{"clients":clients});
+      const message = 'none.';
+      res.render('admin/client',{message,"clients":cs});
     } catch(err) {
       res.render('error.ejs',{message:err.toString()});
     }
   });
   router.post('/client',loginCheck,permissionCheck,async (req,res)=> {
-    // 未実装
-    // localというIDのクライアントは特別扱いしないといけないことを忘れないこと
-    // あと当然client_idが被ったりしないように気をつけるべし。
+    // まだ不完全
+    // クライアント登録時にclient_idが空でないかのチェックとか、
+    // その他色々。
     try {
-      const buff = await fs.readFile(path.join(__dirname,'clients.json'),"utf-8");
-      const clients = JSON.parse(buff);
-      // localクライアントは消せないように除外する
-      for (let i=0;i<clients.settings.length;i++) {
-        if (clients.settings[i].client_id === 'local') {
-          clients.settings.splice(i,1);
-          break;
+      let message = null; // エラーがないかどうかのフラグにも使う
+
+      if (!req.body.type) {
+        // 通常ありえない
+        message = 'req.body.type===null !?';
+      } else if (req.body.type==='registration') {
+        // 入力データーをクライアントメタデーターオブジェクトにする
+        const client_id = req.body.client_id;
+        const client_secret = req.body.client_secret;
+        const redirect_uris = [];
+        for (let r of req.body.redirects.split('\n')) {
+          if (r==="") continue;
+          redirect_uris.push(r.trim());
+        }
+        const post_logout_redirect_uris = [];
+        for (let pr of req.body.post_redirects.split('\n')) {
+          if (pr==="") continue;
+          post_logout_redirect_uris.push(pr.trim());
+        }
+        const new_client = {client_id,client_secret,redirect_uris,post_logout_redirect_uris};
+
+        // client_idが'local'でないことのチェック
+        if (new_client.client_id==='local') {
+          message = `The client_id should not be 'local'.`;
+        }
+
+        // client_idの重複チェック
+        for (c of clients.settings) {
+          if (c.client_id === new_client.client_id) {
+            message = `The client (id=${client_id}) is already registered.`;
+            break;
+          }
+        }
+        // エラーが無ければ登録
+        if (message===null) {
+          clients.settings.push(new_client);
+          await fs.writeFile(path.join(__dirname,'clients.json'),JSON.stringify(clients,null,2));
+          message=`The client(cliet_id=${client_id} was registered.`;
+        }
+      } else if (req.body.type==='deletion') {
+        const client_id = req.body.client_id;
+        // 通常ありえないけどclient_idが'local'でないことのチェック
+        if (client_id==='local') {
+          message = `The client_id===local should not be deleted.`;
+        }
+        // エラーが無ければ消去
+        if (message===null) {
+          for (let i=0;i<clients.settings.length;i++) {
+            if (clients.settings[i].client_id===client_id) {
+              clients.settings.splice(i,1);
+              break;
+            }
+          }
+          await fs.writeFile(path.join(__dirname,'clients.json'),JSON.stringify(clients,null,2));
+          message=`The client(cliet_id=${client_id} was deleted.`;
         }
       }
-      res.render('admin/client',{clients});
+      
+      const cs = [];
+      // localクライアントは消せないように除外する
+      for (let i=0;i<clients.settings.length;i++) {
+        if (clients.settings[i].client_id === 'local')
+          continue;
+        cs.push(clients.settings[i]);
+      }
+      res.render('admin/client',{message,"clients":cs});
     } catch(err) {
       res.render('error.ejs',{message:err.toString()});
     }
