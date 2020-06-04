@@ -1,17 +1,16 @@
 const low = require('lowdb');
 const Memory = require('lowdb/adapters/Memory');
 const jose = require('jose');
-const initial_users = require('./users.json');
 
 const db = low(new Memory());
 
 const assert = require('assert');
 
-db.defaults({
-  users: initial_users.users
-}).write();
+function Account(config,initial_users) {
+  db.defaults({
+    users: initial_users.users
+  }).write();
 
-function Account(config) {
   const self = {};
   let colUsers = null; // <- MongoDBにユーザー情報入れるためのcollection
   self.setProvider = function(provider) {

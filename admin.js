@@ -5,7 +5,7 @@ const path = require('path');
 
 const router = express.Router();
 
-const init = async function(config,clients) {
+const init = async function(config,clients,initial_users) {
   let colUsers = null;
 
   // MongoDBのクライアントを受け取ってDBを取得し、
@@ -75,9 +75,8 @@ const init = async function(config,clients) {
   });
 
   router.get('/user',loginCheck,permissionCheck,async (req,res)=> {
-    // 未実装
     try {
-      res.render('admin/user');
+      res.render('admin/user',{message:"none",userInfo:"none"});
     } catch(err) {
       res.render('error.ejs',{message:err.toString()});
     }
@@ -85,7 +84,84 @@ const init = async function(config,clients) {
   router.post('/user',loginCheck,permissionCheck,async (req,res)=> {
     // 未実装
     try {
-      res.render('admin/user');
+      let message = null;
+      let userInfo = "none";
+      if (!req.body.type) {
+        // 通常ありえない
+        message = 'req.body.type===null !?';
+      } else if (req.body.type==='search') {
+        let us = null;
+        for (u of initial_users.users) {
+          if (u.id===req.body.user_id) {
+            us = [u];
+            break;
+          }
+        }
+        if (us) {
+          message=`The user(id=${req.body.user_id}) was found.(Special User)`;
+          userInfo = JSON.stringify(us[0],null,2);
+        } else {
+          us = await colUsers.find({id:req.body.user_id}).toArray();
+          if (us.length===0) {
+            message=`The user(id=${req.body.user_id}) was not found.`;
+            userInfo=`The user(id=${req.body.user_id}) was not found.`;
+          } else {
+            message=`The user(id=${req.body.user_id}) was found.`;
+            userInfo = JSON.stringify(us[0],null,2);
+          }
+        }
+      } else if (req.body.type==='registration') {
+        let us = null;
+        for (u of initial_users.users) {
+          if (u.id===req.body.user_id) {
+            us = [u];
+            break;
+          }
+        }
+        if (us) {
+          message = `A user_id=${req.body.user_id} is already used.`;
+        } else {
+          us = await colUsers.find({id:req.body.user_id}).toArray();
+          if (us.length===0) {
+            if (req.body.user_id==="") {
+              message = 'The user_id should not be empty.';
+            } else {
+              const user = {
+                id: req.body.user_id,
+                googleId: req.body.google_sub,
+                yahooId: req.body.yahoo_sub
+              };
+              message = 'A new user was registered.';
+              userInfo = JSON.stringify(user,null,2);
+              await colUsers.insertOne(user);
+            }
+          } else {
+            message = `A user_id=${req.body.user_id} is already used.`;
+          }
+        }
+      } else if (req.body.type==='deletion') {
+        let us = null;
+        for (u of initial_users.users) {
+          if (u.id===req.body.user_id) {
+            us = [u];
+            break;
+          }
+        }
+        if (us) {
+          message = `A user_id=${req.body.user_id} is a Special User, and can not delete.`;
+        } else {
+          const r = await colUsers.deleteOne({id: req.body.user_id});
+          if (r.deletedCount===1) {
+            message = `A user(id=${req.body.user_id}) was deleted.`;
+          } else {
+            message = `A user(id=${req.body.user_id}) could not be deleted.`;
+          }
+        }
+      } else {
+        // 通常ありえない
+        message = `req.body.type=${req.body.type}!?`;
+      }
+      res.render('admin/user',{message,userInfo});
     } catch(err) {
       res.render('error.ejs',{message:err.toString()});
     }
@@ -167,6 +243,9 @@ const init = async function(config,clients) {
           await fs.writeFile(path.join(__dirname,'clients.json'),JSON.stringify(clients,null,2));
           message=`The client(cliet_id=${client_id} was deleted.`;
         }
+      } else {
+        // 通常ありえない
+        message = `req.body.type=${req.body.type}!?`;
       }
       
       const cs = [];

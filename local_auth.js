@@ -2,9 +2,19 @@ const express = require('express');
 const router = express.Router();
 const { Issuer, generators } = require('openid-client');
 
-const init = async function(config) {
+const init = async function(config,initial_users) {
   let tryCount = 0;
   let localClient;
+  let colUsers = null;
+
+  // MongoDBのクライアントを受け取ってDBを取得し、
+  // usersを記録するためのcollectionを取得。
+  // DBは'idsrv'の決め打ち
+  router.set_mongo_client = async function(mc) {
+    const db = mc.db('idsrv');
+    colUsers = await db.collection('users');
+  };
+
   const initLocalClient = async function() {
     try {
       const issuer = await Issuer.discover(config.localAPI.issuer);
@@ -18,6 +28,7 @@ const init = async function(config) {
         // id_token_signed_response_alg (default "RS256")
         // token_endpoint_auth_method (default "client_secret_basic")
       });
+      console.log('The local client is ready.');
     } catch(err) {
       console.log('Cannot search local openid-op. (tryCount='+tryCount+')');
       tryCount++;
@@ -63,7 +74,18 @@ const init = async function(config) {
       res.cookie('webid', webid, {maxAge: config.server.session.maxAge });
       res.cookie('uid', uid, {maxAge: config.server.session.maxAge });
       res.cookie('admin', admin, {maxAge: config.server.session.maxAge });
-      res.render('local/result.ejs',{result: 'id_token = '+tokenSet.id_token});
+      let user = null;
+      for (let u of initial_users.users) {
+        if (u.id === uid) {
+          user = u;
+          break;
+        }
+      }
+      if (user === null) {
+        user = await colUsers.find({id:uid}).toArray()[0];
+      }
+      const userInfo = JSON.stringify(user,null,2);
+      res.render('local/result.ejs',{userInfo});
     } catch(err) {
       res.render('error.ejs',{message: JSON.stringify(err)});
     }

@@ -17,6 +17,7 @@ const path = require('path');
 const i18n = require('i18n');
 
 const clients = require('./clients.json');
+const initial_users = require('./users.json');
 
 const { MongoClient } = require('mongodb');
 const MongoAdapter = require('./mongo_adapter');
@@ -102,15 +103,15 @@ const init = async function(config) {
 
   const google_auth = await require('./google_auth')(config);
   const yahoo_auth = await require('./yahoo_auth')(config);
-  const local_auth = await require('./local_auth')(config);
-  const admin = await require('./admin')(config,clients);
+  const local_auth = await require('./local_auth')(config,initial_users);
+  const admin = await require('./admin')(config,clients,initial_users);
   const register = await require('./register')(config);
   register.set_google_auth(google_auth); // google_auth.googleClientを再利用するため
   register.set_yahoo_auth(yahoo_auth); // yahoo_auth.googleClientを再利用するため
   const people = await require('./people')(config);
   const extless = require('./extless');
   // simple account model for this application, user list is defined like so
-  const Account = require('./account')(config);
+  const Account = require('./account')(config,initial_users);
 
   const oidc_uri = 'https://'+config.server.hostname
   mongoClient = new MongoClient('mongodb://127.0.0.1:27017',{
@@ -122,6 +123,7 @@ const init = async function(config) {
   Account.connect(mongoClient);
   register.setMongoClient(mongoClient);
   admin.set_mongo_client(mongoClient);
+  local_auth.set_mongo_client(mongoClient);
   const oidc = new Provider(oidc_uri, {
     adapter: MongoAdapter,
     "clients": clients.settings,

@@ -6,7 +6,7 @@
   </head>
   <body>
     <h1>Management of Users</h1>
-    <p>Under construction.</p>
+    <p>Message: <%=message%></p>
     <h2>Search</h2>
     <form action="./user" method="post">
       <input type="hidden" name="type" value="search"/>
@@ -15,8 +15,7 @@
     </form>
     <div>
       <p>search_result</p>
-      <pre id="search_result" style="border:solid;">
-      </pre>
+      <pre style="border:solid;"><%=userInfo%></pre>
     </div>
     <h2>New Registration</h2>
     <form action="./user" method="post">
