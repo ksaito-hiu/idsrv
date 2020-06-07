@@ -82,7 +82,8 @@ const init = async function(config,initial_users) {
         }
       }
       if (user === null) {
-        user = await colUsers.find({id:uid}).toArray()[0];
+        const users = await colUsers.find({id:uid}).toArray();
+        user = users[0];
       }
       const userInfo = JSON.stringify(user,null,2);
       res.render('local/result.ejs',{userInfo});

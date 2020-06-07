@@ -105,10 +105,11 @@ const init = async function(config) {
   const yahoo_auth = await require('./yahoo_auth')(config);
   const local_auth = await require('./local_auth')(config,initial_users);
   const admin = await require('./admin')(config,clients,initial_users);
-  const register = await require('./register')(config);
+  const register = await require('./register')(config,initial_users);
   register.set_google_auth(google_auth); // google_auth.googleClientを再利用するため
   register.set_yahoo_auth(yahoo_auth); // yahoo_auth.googleClientを再利用するため
   const people = await require('./people')(config);
+  const certificate = await require('./certificate')(config,initial_users);
   const extless = require('./extless');
   // simple account model for this application, user list is defined like so
   const Account = require('./account')(config,initial_users);
@@ -124,6 +125,8 @@ const init = async function(config) {
   register.setMongoClient(mongoClient);
   admin.set_mongo_client(mongoClient);
   local_auth.set_mongo_client(mongoClient);
+  certificate.set_mongo_client(mongoClient);
+  people.set_mongo_client(mongoClient);
   const oidc = new Provider(oidc_uri, {
     adapter: MongoAdapter,
     "clients": clients.settings,
@@ -284,6 +287,7 @@ const init = async function(config) {
   idsrv.use('/admin',admin);
   idsrv.use('/register',register);
   idsrv.use('/people',people);
+  idsrv.use('/certificate',certificate);
 
   idsrv.get('/',(req,res)=>{
     let str;

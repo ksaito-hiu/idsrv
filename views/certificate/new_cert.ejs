@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Certificate Created</title>
+  </head>
+  <body>
+    <h1>Certificate Created</h1>
+    <p>証明書を作成しました。ただし、まだ登録は完了していません。</p>
+    <p>以下のリンク先から2種類の証明書をダウンロードして下さい。
+    確実にダウンロードできたことを確認してからボタンを押して登録して下さい。
+    作成した証明書の保存期間は以下に示した時間だけで、それ以降は削除
+    されます。時間が過ぎてダウンロードできなかったり登録ができなかった
+    場合は再度証明書を作成して下さい。</p>
+    <ul>
+      <li>time limit: <%= time_limit%> min.</li>
+      <li><a href="./pem_cert">PEM形式の証明書</a></li>
+      <li><a href="./p12_cert">PKCS#12形式の証明書</a></li>
+    </ul>
+    <form action="./register" method="get">
+      <p><button type="submit">登録</button></p>
+    </form>
+    <p><a href="/">Back to the top page.</a></p>
+  </body>
+</html>

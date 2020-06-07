@@ -3,33 +3,41 @@
   <head>
     <meta charset="UTF-8">
     <title>Management of Users</title>
+    <script>
+      function search() {
+        const u = encodeURI(document.querySelector('#user_id_input').value);
+        location.href=`./user_search?user_id=${u}`;
+      }
+      function del() {
+        const u = encodeURI(document.querySelector('#user_id_input').value);
+        location.href=`./user_del?user_id=${u}`;
+      }
+      function regist() {
+        let url = './user_add';
+        url += `?user_id=${document.querySelector('#user_id_input').value}`;
+        url += `&google_sub=${document.querySelector('#google_sub').value}`;
+        url += `&yahoo_sub=${document.querySelector('#yahoo_sub').value}`;
+        url += `&pub_mod=${document.querySelector('#pub_mod').value}`;
+        url += `&pub_exp=${document.querySelector('#pub_exp').value}`;
+        location.href=encodeURI(url);
+      }
+    </script>
   </head>
   <body>
     <h1>Management of Users</h1>
     <p>Message: <%=message%></p>
-    <h2>Search</h2>
-    <form action="./user" method="post">
-      <input type="hidden" name="type" value="search"/>
-      <p>User ID: <input type="text" name="user_id"/></p>
-      <p><button type="submit">search</button></p>
-    </form>
-    <div>
-      <p>search_result</p>
-      <pre style="border:solid;"><%=userInfo%></pre>
-    </div>
-    <h2>New Registration</h2>
-    <form action="./user" method="post">
-      <input type="hidden" name="type" value="registration"/>
-      <p>User ID: <input type="text" name="user_id"/></p>
-      <p>Google SUB: <input type="text" name="google_sub"/></p>
-      <p>Yahoo SUB: <input type="text" name="yahoo_sub"/></p>
-      <p><button type="submit">registrate</button></p>
-    </form>
-    <h2>Deletion</h2>
-    <form action="./user" method="post">
-      <input type="hidden" name="type" value="deletion"/>
-      <p>User ID: <input type="text" name="user_id"/></p>
-      <p><button type="submit">delete</button></p>
+    <form action="./user_add" method="post">
+      <p>User ID: <input type="text" name="user_id" id="user_id_input" value="<%=uid%>"/>
+        <button type="button" onclick="search();">Search</button>
+        <button type="button" onclick="del();">Delete</button>
+        <button type="button" onclick="regist();">registrate</button></p>
+      <p>Google SUB: <input type="text" name="google_sub" id="google_sub" size="25" value="<%=google_sub%>"/></p>
+      <p>Yahoo SUB: <input type="text" name="yahoo_sub" id="yahoo_sub" size="25" value="<%=yahoo_sub%>"/></p>
+      <div>
+        <p>Public Key Modules</p>
+        <textarea name="pub_mod" id="pub_mod" cols="30" rows="10"><%=pub_mod%></textarea>
+      </div>
+      <p>Public Key Exponent: <input type="text" name="pub_exp" id="pub_exp" value="<%=pub_exp%>"/></p>
     </form>
     <p><a href="/">Back to the top page.</a></p>
   </body>

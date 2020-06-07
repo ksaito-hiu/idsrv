@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Create Certificate</title>
+  </head>
+  <body>
+    <h1>Create Certificate</h1>
+    <p>WebIDのTLSクライアント認証で使用される秘密鍵や公開鍵、証明書を作成します。</p>
+    <p>ここで作成する秘密鍵はサーバーには保存されません。
+    ダウンロードしたらなくさないように気をつけて下さい。
+    また、公開鍵は保存されWebIDプロフィールのページで自動的に公開されます。
+    ダウンロードすることができる証明書には秘密鍵が含まれており、ブラウザの
+    設定画面で登録して使います。証明書はPEMとPKCS#12という2種類が
+    ダウンロードできますが、ブラウザによりどちらが利用可能かが違うので
+    両方ダウンロードして保存しておいた方が良いでしょう。</p>
+    <p>PKCS#12証明書にはパスワードを付けることができます。以下の
+    欄にパスワードを入力してボタンを押して下さい。</p>
+    <form action="./new_cert" method="get">
+      <p>Password:<input type="password" name="password1"/></p>
+      <p>Confirm Password:<input type="password" name="password2"/></p>
+      <p><button type="submit">作成</button></p>
+    </form>
+    <p><a href="/">Back to the top page.</a></p>
+  </body>
+</html>
