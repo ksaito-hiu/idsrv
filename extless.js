@@ -13,7 +13,7 @@
  */
 
 const express = require('express');
-const fs = require('fs');
+const fsPromises = require('fs').promises;
 const path = require('path');
 const mime = require('mime-types');
 
@@ -38,9 +38,34 @@ function Router(doc_root, config) {
     if (config.priority)
       priority = config.priority;
 
+  const parentDir = {
+    name: '..',
+    isDirectory: function() { return true; }
+  };
+
+  // フォルダのindexを表示できるようにするミドルウェア
+  const dirIndex = async function(req,res,next) {
+    const the_path = path.join(doc_root,req.path);
+    const stats = await fsPromises.stat(the_path);
+    if (stats.isDirectory()) {
+      if (the_path.endsWith('/')) {
+        const files = await fsPromises.readdir(the_path,{withFileTypes:true});
+        files.unshift(parentDir);
+        const c_path = path.join('/ns',req.path);
+        res.render('extless/dir_index',{c_path,files});
+        return;
+      } else {
+        const basename = path.basename(the_path);
+        res.redirect('./'+basename+'/');
+        return;
+      }
+    }
+    next();
+  };
+
   // res.sendFile();してくれる関数
   function sendFile(res,f_path) {
-    const ct = mime.contentType(f_path);
+    const ct = mime.contentType(path.extname(f_path));
     const opt = {
       headers: {
         'Content-Type': ct
@@ -49,16 +74,16 @@ function Router(doc_root, config) {
     res.sendFile(f_path,opt);
   }
 
-  router.get('/*', async (req,res,next)=>{
+  router.get('/*', dirIndex, async (req,res,next)=>{
     //console.log("GAHA: extless.router.get()");
     const the_path = path.resolve(doc_root + req.path);
     const path_data = path.parse(the_path);
     try {
-      await fs.promises.access(the_path); //無けりゃ例外
+      await fsPromises.access(the_path); //無けりゃ例外
       sendFile(res,the_path);
     } catch (err) {
       try {
-        const dir = await fs.promises.opendir(path_data.dir);
+        const dir = await fsPromises.opendir(path_data.dir);
         const ents = [];
         let dirent;
         for await (dirent of dir) {

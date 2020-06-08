@@ -338,12 +338,12 @@ const init = async function(config) {
                  });
 
   // 基本的に、静的なファイルを配信する。
-  //idsrv.use(express.static(config.server.static));
+  //idsrv.use('/ns',express.static(config.server.static));
 
   // 基本的に、静的なファイルを配信する。
   // extlessは拡張子無しのアクセスに対応するexpress.static
   const extless_router = extless.Router(config.server.static,config.extless);
-  idsrv.use(extless_router);
+  idsrv.use('/ns',extless_router);
 
   return idsrv;
 };
