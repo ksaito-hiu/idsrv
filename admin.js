@@ -125,7 +125,7 @@ const init = async function(config,clients,initial_users) {
       const user_id = req.query.user_id;
       let o = {}; // 'admin/user.ejs'にわたすデーター
       let us = null;
-      for (u of initial_users.users) {
+      for (const u of initial_users.users) {
         if (u.id===user_id) {
           us = [u];
           break;
@@ -193,6 +193,9 @@ const init = async function(config,clients,initial_users) {
 
   router.get('/client',loginCheck,permissionCheck,async (req,res)=> {
     try {
+      const o = {};
+      o.message = 'none.';
+      o.client_id=o.secret=o.redirects=o.post_redirects='';
       const cs = [];
       // localクライアントは消せないように除外する
       for (let i=0;i<clients.settings.length;i++) {
@@ -200,78 +203,30 @@ const init = async function(config,clients,initial_users) {
           continue;
         cs.push(clients.settings[i]);
       }
-      const message = 'none.';
-      res.render('admin/client',{message,"clients":cs});
+      o.clients = cs;
+      res.render('admin/client',o);
     } catch(err) {
       res.render('error.ejs',{message:err.toString()});
     }
   });
-  router.post('/client',loginCheck,permissionCheck,async (req,res)=> {
-    // まだ不完全
-    // クライアント登録時にclient_idが空でないかのチェックとか、
-    // その他色々。
+  router.get('/client_search',loginCheck,permissionCheck,async (req,res)=> {
     try {
-      let message = null; // エラーがないかどうかのフラグにも使う
-
-      if (!req.body.type) {
-        // 通常ありえない
-        message = 'req.body.type===null !?';
-      } else if (req.body.type==='registration') {
-        // 入力データーをクライアントメタデーターオブジェクトにする
-        const client_id = req.body.client_id;
-        const client_secret = req.body.client_secret;
-        const redirect_uris = [];
-        for (let r of req.body.redirects.split('\n')) {
-          if (r==="") continue;
-          redirect_uris.push(r.trim());
+      const o = {};
+      o.message = null; // エラーがないかどうかのフラグにも使う
+      for (const c of clients.settings) {
+        if (c.client_id===req.query.client_id) {
+          o.message=`The client(id=${c.client_id}) was found.`;
+          o.client_id=c.client_id;
+          o.secret=c.client_secret;
+          o.redirects=c.redirect_uris.join('\n');
+          o.post_redirects=c.post_logout_redirect_uris.join('\n');
+          break;
         }
-        const post_logout_redirect_uris = [];
-        for (let pr of req.body.post_redirects.split('\n')) {
-          if (pr==="") continue;
-          post_logout_redirect_uris.push(pr.trim());
-        }
-        const new_client = {client_id,client_secret,redirect_uris,post_logout_redirect_uris};
-
-        // client_idが'local'でないことのチェック
-        if (new_client.client_id==='local') {
-          message = `The client_id should not be 'local'.`;
-        }
-
-        // client_idの重複チェック
-        for (c of clients.settings) {
-          if (c.client_id === new_client.client_id) {
-            message = `The client (id=${client_id}) is already registered.`;
-            break;
-          }
-        }
-        // エラーが無ければ登録
-        if (message===null) {
-          clients.settings.push(new_client);
-          await fs.writeFile(path.join(__dirname,'clients.json'),JSON.stringify(clients,null,2));
-          message=`The client(cliet_id=${client_id} was registered.`;
-        }
-      } else if (req.body.type==='deletion') {
-        const client_id = req.body.client_id;
-        // 通常ありえないけどclient_idが'local'でないことのチェック
-        if (client_id==='local') {
-          message = `The client_id===local should not be deleted.`;
-        }
-        // エラーが無ければ消去
-        if (message===null) {
-          for (let i=0;i<clients.settings.length;i++) {
-            if (clients.settings[i].client_id===client_id) {
-              clients.settings.splice(i,1);
-              break;
-            }
-          }
-          await fs.writeFile(path.join(__dirname,'clients.json'),JSON.stringify(clients,null,2));
-          message=`The client(cliet_id=${client_id} was deleted.`;
-        }
-      } else {
-        // 通常ありえない
-        message = `req.body.type=${req.body.type}!?`;
       }
-      
+      if (!o.message) {
+        o.message=`The client(id=${c.client_id}) was not found.`;
+        o.client_id=o.secret=o.redirects=o.post_redirects='';
+      }
       const cs = [];
       // localクライアントは消せないように除外する
       for (let i=0;i<clients.settings.length;i++) {
@@ -279,7 +234,92 @@ const init = async function(config,clients,initial_users) {
           continue;
         cs.push(clients.settings[i]);
       }
-      res.render('admin/client',{message,"clients":cs});
+      o.clients = cs;
+      res.render('admin/client',o);
+    } catch(err) {
+      res.render('error.ejs',{message:err.toString()});
+    }
+  });
+  router.get('/client_del',loginCheck,permissionCheck,async (req,res)=> {
+    try {
+      const client_id = req.query.client_id;
+      let o = {}; // 'admin/client.ejs'にわたすデーター
+      if (!client_id) {
+        o.message = `The client_id must be specified.`;
+        o.client_id=o.secret=o.redirects=o.post_redirects='';
+      } else if (client_id==='local') {
+        o.message = `The client_id===local should not be deleted.`;
+        o.client_id=o.secret=o.redirects=o.post_redirects='';
+      } else { // エラーが無ければ消去
+        for (let i=0;i<clients.settings.length;i++) {
+          if (clients.settings[i].client_id===client_id) {
+            clients.settings.splice(i,1);
+            break;
+          }
+        }
+        await fs.writeFile(path.join(__dirname,'clients.json'),JSON.stringify(clients,null,2));
+        o.message=`The client(cliet_id=${client_id} was deleted.`;
+        o.client_id=o.secret=o.redirects=o.post_redirects='';
+      }
+      const cs = [];
+      // localクライアントは消せないように除外する
+      for (let i=0;i<clients.settings.length;i++) {
+        if (clients.settings[i].client_id === 'local')
+          continue;
+        cs.push(clients.settings[i]);
+      }
+      o.clients = cs;
+      res.render('admin/client',o);
+    } catch(err) {
+      res.render('error.ejs',{message:err.toString()});
+    }
+  });
+  router.get('/client_add',loginCheck,permissionCheck,async (req,res)=> {
+    try {
+      const client_id = req.query.client_id;
+      const o = {}; // 'admin/client.ejs'にわたすデーター
+      if (!client_id) {
+        o.message = `The client_id must be specified.`;
+        o.client_id=o.secret=o.redirects=o.post_redirects='';
+      } else if (client_id==='local') {
+        o.message = 'The client_id should not be "local".';
+        o.client_id=o.secret=o.redirects=o.post_redirects='';
+      } else {
+        // 入力データーをクライアントメタデーターオブジェクトにする
+        const client_secret = req.query.secret;
+        const redirect_uris = [];
+        for (let r of req.query.redirects.split('\n')) {
+          if (r==="") continue;
+          redirect_uris.push(r.trim());
+        }
+        const post_logout_redirect_uris = [];
+        for (let pr of req.query.post_redirects.split('\n')) {
+          if (pr==="") continue;
+          post_logout_redirect_uris.push(pr.trim());
+        }
+        const new_client = {client_id,client_secret,redirect_uris,post_logout_redirect_uris};
+        // 同じclient_idの古いデーターは消す
+        for (let i=0;i<clients.settings.length;i++) {
+          if (clients.settings[i].client_id===client_id) {
+            clients.settings.splice(i,1);
+            break;
+          }
+        }
+        clients.settings.push(new_client);
+        await fs.writeFile(path.join(__dirname,'clients.json'),JSON.stringify(clients,null,2));
+        o.message=`The client(cliet_id=${client_id} was registered.`;
+        o.client_id=o.secret=o.redirects=o.post_redirects='';
+      }
+      // client_idのリストを作る
+      // localクライアントは消したりできないように除外する
+      const cs = [];
+      for (let i=0;i<clients.settings.length;i++) {
+        if (clients.settings[i].client_id === 'local')
+          continue;
+        cs.push(clients.settings[i]);
+      }
+      o.clients = cs;
+      res.render('admin/client',o);
     } catch(err) {
       res.render('error.ejs',{message:err.toString()});
     }

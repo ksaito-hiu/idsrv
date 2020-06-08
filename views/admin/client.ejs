@@ -4,35 +4,55 @@
     <meta charset="UTF-8">
     <title>Management of Clients</title>
   </head>
+    <script>
+      function search() {
+        const u = encodeURI(document.querySelector('#client_id').value);
+        location.href=`./client_search?client_id=${u}`;
+      }
+      function del() {
+        const u = encodeURI(document.querySelector('#client_id').value);
+        location.href=`./client_del?client_id=${u}`;
+      }
+      function regist() {
+        let url = './client_add';
+        url += `?client_id=${document.querySelector('#client_id').value}`;
+        url += `&secret=${document.querySelector('#secret').value}`;
+        url += `&redirects=${document.querySelector('#redirects').value}`;
+        url += `&post_redirects=${document.querySelector('#post_redirects').value}`;
+        location.href=encodeURI(url);
+      }
+      function init() {
+        const select = document.querySelector('#clients');
+        const c_id = document.querySelector('#client_id');
+        select.addEventListener('change',function(e){
+          c_id.value = e.target.value;
+        });
+      }
+      window.addEventListener('load',init);
+    </script>
   <body>
     <h1>Management of Clients</h1>
     <p>Message: <%= message %></p>
     <p>You must restart the idsrv deamon to reflect settings changed on this page.</p>
-    <h2>New Registration</h2>
-    <form action="./client" method="post">
-      <input type="hidden" name="type" value="registration"/>
-      <p>Client ID: <input type="text" name="client_id"/></p>
-      <p>Client Secret: <input type="text" name="client_secret"/></p>
-      <div>
-        <p>Redirect URIs</p>
-        <textarea name="redirects"></textarea>
-      </div>
-      <div>
-        <p>Post Logout Redirect URIs</p>
-        <textarea name="post_redirects"></textarea>
-      </div>
-      <p><button type="submit">registrate</button></p>
-    </form>
-    <h2>Deletion</h2>
-    <form action="./client" method="post">
-      <input type="hidden" name="type" value="deletion"/>
-      <select name="client_id">
+    <p>Registered client IDs:
+      <select id="clients">
         <% for (c of clients) { %>
-          <option value="<%= c.client_id %>"><%= c.client_id %></option>
+        <option value="<%= c.client_id %>"><%= c.client_id %></option>
         <% } %>
-      </select>
-      <p><button type="submit">delete</button></p>
-    </form>
+      </select></p>
+    <p>Client ID: <input type="text" name="client_id" id="client_id" value="<%=client_id%>"/>
+      <button type="button" onclick="search();">Search</button>
+      <button type="button" onclick="del();">Delete</button>
+      <button type="button" onclick="regist();">Registrate</button></p>
+    <p>Client Secret: <input type="text" name="secret" id="secret" value="<%=secret%>"/></p>
+    <div>
+      <p>Redirect URIs</p>
+      <textarea name="redirects" id="redirects"><%=redirects%></textarea>
+    </div>
+    <div>
+      <p>Post Logout Redirect URIs</p>
+      <textarea name="post_redirects" id="post_redirects"><%=post_redirects%></textarea>
+    </div>
     <hr/>
     <p><a href="/">Back to the top page.</a></p>
   </body>
