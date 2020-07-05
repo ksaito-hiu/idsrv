@@ -1,7 +1,7 @@
 # idsrv
 
-A WebID-OIDC authentication server just for Hokkaido
-Information University.
+A WebID-OIDC authentication server appropriating
+google accounts for authentication.
 
 It's in the testing phase now.
 
