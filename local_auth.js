@@ -34,7 +34,7 @@ const init = async function(config,initial_users) {
       tryCount++;
       let t = 1000*tryCount*tryCount;
       t = t>10*60*1000?10*60*1000:t;
-      setTimeout(router.wakeup,t);
+      setTimeout(initLocalClient,t);
     }
   }
   setTimeout(initLocalClient,10000);
