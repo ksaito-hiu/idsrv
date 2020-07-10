@@ -1,6 +1,6 @@
 {
   "name": "idsrv",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A WebID-OIDC authentication server appropriating google accounts for authentication.",
   "main": "index.js",
   "scripts": {
