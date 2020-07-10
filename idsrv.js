@@ -16,9 +16,6 @@ const fetch = require('node-fetch');
 const path = require('path');
 const i18n = require('i18n');
 
-const clients = require('./clients.json');
-const initial_users = require('./users.json');
-
 const { MongoClient } = require('mongodb');
 const MongoAdapter = require('./mongo_adapter');
 let mongoClient = null;
@@ -45,7 +42,10 @@ const allowCrossDomain = function(req,res,next) {
 };
 
 const init = async function(config) {
-  const jwks = require(config.server.jwks);
+  const idsrv_root = path.resolve(config.idsrv_root);
+  const jwks = require(path.join(idsrv_root,'jwks.json'));
+  const clients = require(path.join(idsrv_root,'clients.json'));
+  const initial_users = require(path.join(idsrv_root,'users.json'));
 
   // emailをidに変換する関数が設定されていなければ以下の
   // 関数で処理する。(デフォルト実装はgmailを過程して、

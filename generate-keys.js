@@ -1,6 +1,16 @@
+#!/usr/bin/env node
+
 const fs = require('fs');
 const path = require('path');
 const jose = require('jose');
+
+if (process.argv.length!==3) {
+  console.log("Usage: node generate-keys.js config.json");
+  process.exit(1);
+}
+
+const cnf_path = path.join(process.cwd(),process.argv[2]);
+const config = require(cnf_path);
 
 const keystore = new jose.JWKS.KeyStore();
 
@@ -14,5 +24,6 @@ Promise.all([
   keystore.generate('RSA', 2048, { alg: 'RS512', key_ops: ['verify'] }),
   keystore.generate('RSA', 2048, { alg: 'RS512', key_ops: ['verify'] }),
 ]).then(() => {
-  fs.writeFileSync(path.resolve('jwks.json'), JSON.stringify(keystore.toJWKS(true), null, 2));
+  const the_path = path.join(config.idsrv_root,'jwks.json');
+  fs.writeFileSync(the_path, JSON.stringify(keystore.toJWKS(true), null, 2));
 });
