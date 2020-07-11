@@ -7,6 +7,9 @@ It's in the testing phase now.
 
 ### setup
 
+    sudo apt install mongodb
+    git clone https://github.com/ksaito-hiu/idsrv.git
+    cd idsrv
     npm install
     cp config.example.json config.json
     vi config.json

@@ -289,7 +289,7 @@ const init = async function(config) {
   idsrv.use('/people',people);
   idsrv.use('/certificate',certificate);
 
-  idsrv.get('/',(req,res)=>{
+  idsrv.get('/idsrv_top',(req,res)=>{
     let str;
     if (!!req.session) {
       if (!!req.session.webid) {

@@ -31,6 +31,10 @@ const express = require('express');
 
   expressApp.use('/',idsrv);
 
+  expressApp.get('/',(req,res)=>{
+    res.redirect('/idsrv_top');
+  });
+
   // express listen
   expressApp.listen(config.server.port,()=>{
     console.log(`check https://${config.server.hostname}${config.server.prefix}/.well-known/openid-configuration`);
