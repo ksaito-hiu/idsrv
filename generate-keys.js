@@ -5,7 +5,7 @@ const path = require('path');
 const jose = require('jose');
 
 if (process.argv.length!==3) {
-  console.log("Usage: node generate-keys.js config.json");
+  console.log("You must specify your configuration file for idsrv as the 1st argument.");
   process.exit(1);
 }
 

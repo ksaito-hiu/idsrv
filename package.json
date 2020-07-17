@@ -1,8 +1,11 @@
 {
   "name": "idsrv",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A WebID-OIDC authentication server appropriating google accounts for authentication.",
   "main": "index.js",
+  "bin": {
+    "idsrv-generate-keys":"./generate-keys.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
