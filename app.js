@@ -37,6 +37,6 @@ const express = require('express');
 
   // express listen
   expressApp.listen(config.server.port,()=>{
-    console.log(`check https://${config.server.hostname}${config.server.prefix}/.well-known/openid-configuration`);
+    console.log(`check [http|https]://${config.server.hostname}:${config.server.port}${config.server.prefix}/.well-known/openid-configuration`);
   });
 })();

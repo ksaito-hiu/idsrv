@@ -101,9 +101,18 @@ const init = async function(config) {
 
   idsrv.use(cookieParser());
 
-  const google_auth = await require('./google_auth')(config);
-  const yahoo_auth = await require('./yahoo_auth')(config);
-  const local_auth = await require('./local_auth')(config,initial_users);
+  // simple account model for this application, user list is defined like so
+  const Account = require('./account')(config,initial_users);
+  const google_auth = await require('./google_auth')(config,Account);
+  const yahoo_auth = await require('./yahoo_auth')(config,Account);
+  let logout_redirect = "http://localhost:8080/"; // 最悪の場合のデフォルト
+  for (c in clients.settings) {
+    if (c.client_id === "local") {
+      logout_redirect = c.post_logout_redirect_uris[0]; // 1つしか指定しないということで
+      break;
+    }
+  }
+  const local_auth = await require('./local_auth')(config,initial_users,logout_redirect);
   const admin = await require('./admin')(config,clients,initial_users);
   const register = await require('./register')(config,initial_users);
   register.set_google_auth(google_auth); // google_auth.googleClientを再利用するため
@@ -111,8 +120,6 @@ const init = async function(config) {
   const people = await require('./people')(config);
   const certificate = await require('./certificate')(config,initial_users);
   const extless = require('./extless');
-  // simple account model for this application, user list is defined like so
-  const Account = require('./account')(config,initial_users);
 
   const oidc_uri = 'https://'+config.server.hostname
   mongoClient = new MongoClient('mongodb://127.0.0.1:27017',{
@@ -149,20 +156,19 @@ const init = async function(config) {
       `code id_token`,
       `code token`,
       `code`,
-      `token`,
       `id_token`,
       `none`
     ],
     interactions: {
       url: async function(ctx, interaction) {
-        return `/interaction/${ctx.oidc.uid}`;
+        return `/interaction/${interaction.uid}`;
       }
     },
     features: {
       // disable the packaged interactions
       devInteractions: { enabled: false },
-      introspection: { enabled: true }, // RFC7662
-      revocation: { enabled: true }, // RFC7009
+      //introspection: { enabled: true }, // RFC7662
+      //revocation: { enabled: true }, // RFC7009
 
       registration: { enabled: true },
       requestObjects: {
@@ -171,7 +177,7 @@ const init = async function(config) {
         requireUriRegistration: false,
       },
       clientCredentials: { enabled: true },
-      //dPoP: { enabled: true },
+      dPoP: { enabled: true },
     },
     whitelistedJWA: {
       requestObjectSigningAlgValues: [
@@ -213,7 +219,7 @@ const init = async function(config) {
 
   idsrv.get('/interaction/:uid', setNoCache, async (req, res, next) => {
     try {
-      const details = await oidc.interactionDetails(req);
+      const details = await oidc.interactionDetails(req,res);
       const { uid, prompt, params } = details;
 
       const client = await oidc.Client.find(params.client_id);
@@ -236,15 +242,13 @@ const init = async function(config) {
 
   idsrv.get('/interaction/:uid/login', setNoCache, parse, async (req, res, next) => {
     try {
-      const { uid, prompt, params } = await oidc.interactionDetails(req);
+      const { uid, prompt, params } = await oidc.interactionDetails(req,res);
       const client = await oidc.Client.find(params.client_id);
 
       const accountId = req.query.accountId;
 
       const result = {
-        login: {
-          account: accountId,
-        },
+        login: { accountId },
       };
       await oidc.interactionFinished(req, res, result,
                                      { mergeWithLastSubmission: false });
@@ -255,14 +259,50 @@ const init = async function(config) {
 
   idsrv.post('/interaction/:uid/confirm', setNoCache, parse, async (req, res, next) => {
     try {
-      const result = {
-        consent: {
-          // rejectedScopes: [], // < uncomment and add rejections here
-          // rejectedClaims: [], // < uncomment and add rejections here
-        },
-      };
-      await oidc.interactionFinished(req, res, result,
-                                     { mergeWithLastSubmission: true });
+      const interactionDetails = await oidc.interactionDetails(req, res);
+      const { prompt: { name, details }, params, session: { accountId } } = interactionDetails;
+      //assert.strictEqual(name, 'consent');
+
+      let { grantId } = interactionDetails;
+      let grant;
+
+      if (grantId) {
+        // we'll be modifying existing grant in existing session
+        grant = await oidc.Grant.find(grantId);
+      } else {
+        // we're establishing a new grant
+        grant = new oidc.Grant({
+          accountId,
+          clientId: params.client_id,
+        });
+      }
+
+      if (details.missingOIDCScope) {
+        grant.addOIDCScope(details.missingOIDCScope.join(' '));
+        // use grant.rejectOIDCScope to reject a subset or the whole thing
+      }
+      if (details.missingOIDCClaims) {
+        grant.addOIDCClaims(details.missingOIDCClaims);
+        // use grant.rejectOIDCClaims to reject a subset or the whole thing
+      }
+      if (details.missingResourceScopes) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const [indicator, scopes] of Object.entries(details.missingResourceScopes)) {
+          grant.addResourceScope(indicator, scopes.join(' '));
+          // use grant.rejectResourceScope to reject a subset or the whole thing
+        }
+      }
+
+      grantId = await grant.save();
+
+      const consent = {};
+      if (!interactionDetails.grantId) {
+        // we don't have to pass grantId to consent, we're just modifying existing one
+        consent.grantId = grantId;
+      }
+
+      const result = { consent };
+      await oidc.interactionFinished(req, res, result, { mergeWithLastSubmission: true });
     } catch (err) {
       next(err);
     }
@@ -312,7 +352,7 @@ const init = async function(config) {
   // 今回の場合301でリダイレクトするのはダメで、
   // nginxでrewriteで簡単に設定できなかったので
   // node-fetchを使って以下のようにした。
-  idsrv.use(config.server.prefix,oidc.callback);
+  idsrv.use(config.server.prefix,oidc.callback());
   idsrv.get('/.well-known/openid-configuration',
                  async (req,res) => {
                    try {

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Issuer, generators } = require('openid-client');
 
-const init = async function(config) {
+const init = async function(config,account) {
   let tryCount = 0;
   let yahooClient;
   const initYahooClient = async function() {
@@ -57,7 +57,11 @@ const init = async function(config) {
       // redirect_uriなんだけど、これちゃんとしないと。
       const tokenSet = await yahooClient.callback(config.yahooAPI.redirect_uris[0], params, { code_verifier });
       //const userinfo = await googleClient.userinfo(tokenSet.access_token);
-      res.redirect('/interaction/'+provider_session_uid+'/login?accountId=yahoo-'+tokenSet.claims().sub);
+      const id = await account.findAccountByGoogleSub(tokenSet.claims().sub);
+      if (!!id)
+        res.redirect('/interaction/'+provider_session_uid+'/login?accountId='+id);
+      else
+        res.redirect('/interaction/'+provider_session_uid+'/abort');
     } catch(err) {
       res.redirect('/interaction/'+provider_session_uid+'/abort');
     }

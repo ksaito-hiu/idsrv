@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Issuer, generators } = require('openid-client');
 
-const init = async function(config,initial_users) {
+const init = async function(config,initial_users,logout_redirect) {
   let tryCount = 0;
   let localClient;
   let colUsers = null;
@@ -99,7 +99,8 @@ const init = async function(config,initial_users) {
         /* response_type: '???', */
         /* scope: 'openid', */
         /* redirect_uri: 'http://localhost:3000/', */
-        post_logout_redirect_uri: `https://${config.server.hostname}/`,
+        /* post_logout_redirect_uri: `https://${config.server.hostname}/`, */
+        post_logout_redirect_uri: logout_redirect,
         id_token_hint: req.session.id_tokenX,
       };
     } else {

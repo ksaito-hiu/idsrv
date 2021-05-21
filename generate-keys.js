@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const jose = require('jose');
+const jose = require('jose2');
 
 if (process.argv.length!==3) {
   console.log("You must specify your configuration file for idsrv as the 1st argument.");

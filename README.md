@@ -13,7 +13,7 @@ It's in the testing phase now.
     npm install
     cp config.example.json config.json
     vi config.json
-    ./generate-keys.js config.json
+    npm run generate-keys
     cp clients.example.json clients.json
     vi clients.json
     cp users.example.json users.json

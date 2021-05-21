@@ -1,13 +1,14 @@
 {
   "name": "idsrv",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A WebID-OIDC authentication server appropriating google accounts for authentication.",
   "main": "index.js",
   "bin": {
     "idsrv-generate-keys": "./generate-keys.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate-keys": "./generate-keys.js ./config.json"
   },
   "keywords": [
     "WebID-OIDC",
@@ -22,15 +23,15 @@
   "dependencies": {
     "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
-    "express-session": "^1.17.0",
-    "i18n": "^0.10.0",
-    "jose": "^1.24.0",
+    "express-session": "^1.17.1",
+    "i18n": "^0.13.3",
+    "jose2": "npm:jose@^2.0.4",
     "lowdb": "^1.0.0",
-    "mongodb": "^3.5.4",
+    "mongodb": "^3.6.7",
     "multer": "^1.4.2",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "node-forge": "^0.10.0",
-    "oidc-provider": "^7.3.1",
+    "oidc-provider": "^7.3.2",
     "openid-client": "^4.7.3"
   }
 }
