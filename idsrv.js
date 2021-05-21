@@ -106,7 +106,8 @@ const init = async function(config) {
   const google_auth = await require('./google_auth')(config,Account);
   const yahoo_auth = await require('./yahoo_auth')(config,Account);
   let logout_redirect = "http://localhost:8080/"; // 最悪の場合のデフォルト
-  for (c in clients.settings) {
+  for (let i=0;i<clients.settings.length;i++) {
+    const c = clients.settings[i];
     if (c.client_id === "local") {
       logout_redirect = c.post_logout_redirect_uris[0]; // 1つしか指定しないということで
       break;
