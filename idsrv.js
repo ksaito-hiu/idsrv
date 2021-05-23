@@ -148,7 +148,8 @@ const init = async function(config) {
     jwks,
     findAccount: Account.findAccount,
     claims: {
-      openid: ['sub','webid','cnf'],
+      //openid: ['sub','webid','cnf'],
+      openid: ['sub','webid'],
       profile: ['name','birthdate','gender']
     },
     responseTypes: [
@@ -173,26 +174,25 @@ const init = async function(config) {
 
       registration: { enabled: true },
       requestObjects: {
-        request: true,
+        mode: 'lax',
+        request: false,
         requestUri: false,
         requireUriRegistration: false,
       },
       clientCredentials: { enabled: true },
       dPoP: { enabled: true },
     },
-    whitelistedJWA: {
+    enabledJWA: {
       requestObjectSigningAlgValues: [
         'none', // これを付け加えた
         'HS256',
         'RS256',
-        'RS384',
-        'RS512',
         'PS256',
         'ES256',
         'EdDSA'
       ]
     },
-    extraParams: ['key'],
+    // extraParams: ['key'],
     /*
       async extraAccessTokenClaims(ctx,token) {
       ctx.oidc.issuer.substring(0);
