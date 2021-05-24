@@ -32,6 +32,21 @@ function Account(config,initial_users) {
       return undefined;
     }
 
+    // 以下はlegacyPoPに対応するための一時凌ぎのコード。
+    // Implicit Flowでは上手く機能するみたいだけど
+    // Authorization Code Flowでは上手く機能しないことの
+    // 方が多い。将来的には完全に消したい。
+    if (!!ctx.oidc.client) {
+      const r = /request=([^&]*)/.exec(ctx.originalUrl);
+      if (!!r) {
+        if (!!r[1]) {
+          const reqObj = jose.JWT.decode(r[1]);
+          if (!!reqObj.key)
+            ctx.oidc.client.pKey = reqObj.key;
+        }
+      }
+    }
+
     // ここで返す値なのだけど、solid-auth-client.bundle.jsの
     // 実装をテストした感じではsubにwebidを設定してwebidという
     // claimsは付けずに返事してる。以前仕様を調べた時には
@@ -48,6 +63,11 @@ function Account(config,initial_users) {
           birthdate: 'dummy',
           gender: 'dummy',
         };
+        // 以下3行もlegacyPoPのための一時的なコード。
+        // 将来的には消したい。
+        if (!!(ctx.oidc.client.pKey)) {
+          cs.cnf = { jwk: ctx.oidc.client.pKey };
+        }
         return cs;
       },
     };
