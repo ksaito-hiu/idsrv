@@ -24,7 +24,7 @@ function Account(config,initial_users) {
     let account;
     account = db.get('users').find({ id }).value();
     if (!account) {
-      const as = await colUsers.find({accountId: id }).toArray();
+      const as = await colUsers.find({ id }).toArray();
       if (as.length>0)
         account = as[0];
     }
