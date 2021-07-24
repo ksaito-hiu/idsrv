@@ -40,7 +40,8 @@ const init = async function(config,account) {
     const params = {
       scope: 'openid',
       code_challenge,
-      code_challenge_method: 'S256'
+      code_challenge_method: 'S256',
+      prompt: 'select_account' // 2021,07/24: 自動的にログインしないように追加
     };
     let goToUrl = googleClient.authorizationUrl(params);
     res.redirect(goToUrl);
