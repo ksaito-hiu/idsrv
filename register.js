@@ -12,6 +12,8 @@ const init = async function(config) {
   // 以下のコールバックURLもうちょっと上手く設定されるようにしないと。GAHA
   const g_callback = `https://${config.server.hostname}/register/g_callback`;
   const y_callback = `https://${config.server.hostname}/register/y_callback`;
+  //const g_callback = `http://localhost:8080/register/g_callback`;
+  //const y_callback = `http://localhost:8080/register/y_callback`;
 
 
 
@@ -56,7 +58,8 @@ const init = async function(config) {
       redirect_uri: g_callback,
       scope: 'openid email',
       code_challenge,
-      code_challenge_method: 'S256'
+      code_challenge_method: 'S256',
+      prompt: 'select_account' // 2021,07/24: 自動的にログインしないように追加
     };
     const goToUrl = ga.googleClient.authorizationUrl(params);
     res.redirect(goToUrl);
