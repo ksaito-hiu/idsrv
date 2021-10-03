@@ -19,6 +19,14 @@
   <body>
     <h1>Top</h1>
     <p>Message: <%=msg %></p>
+    <ul>
+      <li><a href="/auth/local/login">Local login</a></li>
+      <li><a href="/auth/local/logout">Local logout</a></li>
+      <li><a href="/register/"><%= __('register') %></a></li>
+      <li><a href="/certificate/">TLS証明書の作成・登録</a></li>
+      <li id="admin"><a href="/admin/">admin</a></li></p>
+    </ul>
+    <hr/>
     <p>ログインが上手くいかない時で、複数のGoogleアカウントやYahoo! JAPAN IDで
       ログインしているような場合は一度全てのアカウントでログアウトしてから試して
       みて下さい。
@@ -26,14 +34,6 @@
     <ul>
       <li><a href="https://accounts.google.com/Logout" target="_blank">全てのGoogleアカウントをログアウト</a></li>
       <li><a href="https://accounts.yahoo.co.jp/profile" target="_blank">Yahoo! JAPANの登録情報ページでログアウト</a></li>
-    </ul>
-    <hr/>
-    <ul>
-      <li><a href="/auth/local/login">Local login</a></li>
-      <li><a href="/auth/local/logout">Local logout</a></li>
-      <li><a href="/register/"><%= __('register') %></a></li>
-      <li><a href="/certificate/">TLS証明書の作成・登録</a></li>
-      <li id="admin"><a href="/admin/">admin</li></p>
     </ul>
   </body>
 </html>

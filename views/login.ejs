@@ -5,6 +5,10 @@
   </head>
   <body>
     <h1>Redirect to google or yahoo</h1>
+    <p>Select one of below.</p>
+    <p><a href="/auth/google/login?provider_session_uid=<%=provider_session_uid %>">Google</a></p>
+    <p><a href="/auth/yahoo/login?provider_session_uid=<%=provider_session_uid %>">Yahoo</a></p>
+    <hr/>
     <p>ログインが上手くいかない時で、複数のGoogleアカウントやYahoo! JAPAN IDで
       ログインしているような場合は一度全てのアカウントでログアウトしてから試して
       みて下さい。
@@ -13,10 +17,6 @@
       <li><a href="https://accounts.google.com/Logout" target="_blank">全てのGoogleアカウントをログアウト</a></li>
       <li><a href="https://accounts.yahoo.co.jp/profile" target="_blank">Yahoo! JAPANの登録情報ページでログアウト</a></li>
     </ul>
-    <hr/>
-    <p>Select one of below.</p>
-    <p><a href="/auth/google/login?provider_session_uid=<%=provider_session_uid %>">Google</a></p>
-    <p><a href="/auth/yahoo/login?provider_session_uid=<%=provider_session_uid %>">Yahoo</a></p>
     <hr/>
     <p><a href="/">Back to the top page.</a></p>
   </body>
