@@ -369,10 +369,10 @@ const init = async function(config) {
                      };
                      const response = await fetch(`http://localhost:${config.server.port}${config.server.prefix}/.well-known/openid-configuration`,opt);
                      const txt = await response.text();
-                     res.header('Content-Type', 'text/json');
+                     res.header('Content-Type', 'application/json');
                      res.end(txt);
                    } catch (err) {
-                     res.header('Content-Type', 'text/json');
+                     res.header('Content-Type', 'application/json');
                      const error = err.toString();
                      res.end(`{ "err": "${error}" }`);
                    }
