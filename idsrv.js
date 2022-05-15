@@ -7,18 +7,37 @@
  * 囲まれた場所でやって下さい。
  */
 
-const express = require('express');
-const session = require('express-session');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const Provider = require('oidc-provider');
-const fetch = require('node-fetch');
-const path = require('path');
-const i18n = require('i18n');
+import express from 'express';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
+import Provider from 'oidc-provider';
+import fetch from 'node-fetch';
+import path from 'path';
+import i18n from 'i18n';
+import { readFile } from 'fs/promises';
+import account_init from './account.js';
+import google_auth_init from './google_auth.js';
+import yahoo_auth_init from './yahoo_auth.js';
+import local_auth_init from './local_auth.js';
+import admin_init from './admin.js';
+import register_init from './register.js';
+import people_init from './people.js';
+import certificate_init from './certificate.js';
+import extless from './extless.js';
 
-const { MongoClient } = require('mongodb');
-const MongoAdapter = require('./mongo_adapter');
+import { default as mongodb } from 'mongodb';
+const MongoClient = mongodb.MongoClient;
+import MongoAdapter from './mongo_adapter.js';
 let mongoClient = null;
+
+async function load_json(file_name) {
+  return JSON.parse(
+    await readFile(
+      new URL(file_name, import.meta.url)
+    )
+  );
+}
 
 // CORS(Cross-Origin Resource Sharing)対応のミドルウェア。
 const allowCrossDomain = function(req,res,next) {
@@ -43,9 +62,9 @@ const allowCrossDomain = function(req,res,next) {
 
 const init = async function(config) {
   const idsrv_root = path.resolve(config.idsrv_root);
-  const jwks = require(path.join(idsrv_root,'jwks.json'));
-  const clients = require(path.join(idsrv_root,'clients.json'));
-  const initial_users = require(path.join(idsrv_root,'users.json'));
+  const jwks = await load_json(path.join(idsrv_root,'jwks.json'));
+  const clients = await load_json(path.join(idsrv_root,'clients.json'));
+  const initial_users = await load_json(path.join(idsrv_root,'users.json'));
 
   // emailをidに変換する関数が設定されていなければ以下の
   // 関数で処理する。(デフォルト実装はgmailを過程して、
@@ -77,7 +96,7 @@ const init = async function(config) {
   const idsrv = express();
   idsrv.set('trust proxy', true);
   idsrv.set('view engine', 'ejs');
-  idsrv.set('views', path.join(__dirname,'views'));
+  idsrv.set('views', path.join(idsrv_root,'views'));
 
   // body-parserミドルウェア使わなくても以下の設定で
   // req.bodyが使えるようになったらしい(express v4.16以上)
@@ -86,7 +105,7 @@ const init = async function(config) {
 
   i18n.configure({
     locales: ['en', 'ja'],
-    directory: path.join(__dirname,'locales')
+    directory: path.join(idsrv_root,'locales')
   });
   idsrv.use(i18n.init);
 
@@ -102,9 +121,9 @@ const init = async function(config) {
   idsrv.use(cookieParser());
 
   // simple account model for this application, user list is defined like so
-  const Account = require('./account')(config,initial_users);
-  const google_auth = await require('./google_auth')(config,Account);
-  const yahoo_auth = await require('./yahoo_auth')(config,Account);
+  const Account = account_init(config,initial_users);
+  const google_auth = await google_auth_init(config,Account);
+  const yahoo_auth = await yahoo_auth_init(config,Account);
   let logout_redirect = "http://localhost:8080/"; // 最悪の場合のデフォルト
   for (let i=0;i<clients.settings.length;i++) {
     const c = clients.settings[i];
@@ -113,14 +132,13 @@ const init = async function(config) {
       break;
     }
   }
-  const local_auth = await require('./local_auth')(config,initial_users,logout_redirect);
-  const admin = await require('./admin')(config,clients,initial_users);
-  const register = await require('./register')(config,initial_users);
+  const local_auth = await local_auth_init(config,initial_users,logout_redirect);
+  const admin = await admin_init(config,clients,initial_users);
+  const register = await register_init(config,initial_users);
   register.set_google_auth(google_auth); // google_auth.googleClientを再利用するため
   register.set_yahoo_auth(yahoo_auth); // yahoo_auth.googleClientを再利用するため
-  const people = await require('./people')(config);
-  const certificate = await require('./certificate')(config,initial_users);
-  const extless = require('./extless');
+  const people = await people_init(config);
+  const certificate = await certificate_init(config,initial_users);
 
   const oidc_uri = 'https://'+config.server.hostname
   mongoClient = new MongoClient('mongodb://127.0.0.1:27017',{
@@ -389,4 +407,4 @@ const init = async function(config) {
   return idsrv;
 };
 
-module.exports = init;
+export default init;

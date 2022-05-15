@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 
 const init = async function(config) {
@@ -51,4 +51,4 @@ ${pub_key}
   return router;
 };
 
-module.exports = init;
+export default init;

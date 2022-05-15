@@ -1,7 +1,17 @@
-const express = require('express');
+import express from 'express';
+import { readFile } from 'fs/promises';
+import idsrv_init from './idsrv.js';
+
+async function load_json(file_name) {
+  return JSON.parse(
+    await readFile(
+      new URL(file_name, import.meta.url)
+    )
+  );
+}
 
 (async () => {
-  const config = require('./config.json');
+  const config = await load_json('./config.json');
   // Googleアカウントに設定されたmailをidに変換する
   // 関数を設定する。自動登録の時に使用される。
   // 対象外のメールアドレスの場合はnullを返すようにしなければならない。
@@ -20,7 +30,7 @@ const express = require('express');
     return webid.match(/^.*\/([^\/]+)#[^#]+$/)[1];
   };
 
-  const idsrv = await require('./idsrv')(config);
+  const idsrv = await idsrv_init(config);
 
   const expressApp = express();
 

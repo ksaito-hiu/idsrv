@@ -3,6 +3,7 @@
   "version": "0.0.8",
   "description": "A WebID-OIDC authentication server appropriating google accounts for authentication.",
   "main": "index.js",
+  "type": "module",
   "bin": {
     "idsrv-generate-keys": "./generate-keys.js"
   },

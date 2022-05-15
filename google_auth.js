@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { Issuer, generators } = require('openid-client');
+import { Issuer, generators } from 'openid-client';
 
 const init = async function(config,account) {
   let tryCount = 0;
@@ -88,4 +88,4 @@ const init = async function(config,account) {
   return router;
 };
 
-module.exports = init;
+export default init;

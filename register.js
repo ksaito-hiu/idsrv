@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { generators } = require('openid-client');
+import { generators } from 'openid-client';
 
 const init = async function(config) {
   let ga = null; // <- google_authを入れる
@@ -181,4 +181,4 @@ const init = async function(config) {
   return router;
 };
 
-module.exports = init;
+export default init;

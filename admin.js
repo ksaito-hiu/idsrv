@@ -1,7 +1,7 @@
-const express = require('express');
-const multer = require('multer');
-const fs = require("fs").promises;
-const path = require('path');
+import express from 'express';
+import multer from 'multer';
+import { writeFile } from 'fs/promises';
+import path from 'path';
 
 const router = express.Router();
 
@@ -257,7 +257,7 @@ const init = async function(config,clients,initial_users) {
             break;
           }
         }
-        await fs.writeFile(path.join(__dirname,'clients.json'),JSON.stringify(clients,null,2));
+        await writeFile(path.join(__dirname,'clients.json'),JSON.stringify(clients,null,2));
         o.message=`The client(cliet_id=${client_id} was deleted.`;
         o.client_id=o.secret=o.redirects=o.post_redirects='';
       }
@@ -306,7 +306,7 @@ const init = async function(config,clients,initial_users) {
           }
         }
         clients.settings.push(new_client);
-        await fs.writeFile(path.join(__dirname,'clients.json'),JSON.stringify(clients,null,2));
+        await writeFile(path.join(__dirname,'clients.json'),JSON.stringify(clients,null,2));
         o.message=`The client(cliet_id=${client_id} was registered.`;
         o.client_id=o.secret=o.redirects=o.post_redirects='';
       }
@@ -328,4 +328,4 @@ const init = async function(config,clients,initial_users) {
   return router;
 };
 
-module.exports = init;
+export default init;

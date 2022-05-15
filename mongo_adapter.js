@@ -2,7 +2,7 @@
 
 // npm i mongodb@^3.0.0
 //const { MongoClient } = require('mongodb'); // eslint-disable-line import/no-unresolved
-const snakeCase = require('lodash/snakeCase');
+import snakeCase from 'lodash/snakeCase.js';
 
 let DB;
 
@@ -138,4 +138,4 @@ class MongoAdapter {
   }
 }
 
-module.exports = MongoAdapter;
+export default MongoAdapter;

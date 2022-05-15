@@ -1,10 +1,10 @@
-const low = require('lowdb');
-const Memory = require('lowdb/adapters/Memory');
-const jose = require('jose2');
+import low from 'lowdb';
+import Memory from 'lowdb/adapters/Memory.js';
+import jose from 'jose2';
 
 const db = low(new Memory());
 
-const assert = require('assert');
+import assert from 'assert';
 
 function Account(config,initial_users) {
   db.defaults({
@@ -106,4 +106,4 @@ function Account(config,initial_users) {
   return self;
 }
 
-module.exports = Account;
+export default Account;

@@ -12,10 +12,10 @@
  * (ネーミングはextension-lessより。)
  */
 
-const express = require('express');
-const fsPromises = require('fs').promises;
-const path = require('path');
-const mime = require('mime-types');
+import express from 'express';
+import fsp from 'fs/promises';
+import path from 'path';
+import mime from 'mime-types';
 
 const default_priority = [
   ".ttl", ".rdf",
@@ -46,10 +46,10 @@ function Router(doc_root, config) {
   // フォルダのindexを表示できるようにするミドルウェア
   const dirIndex = async function(req,res,next) {
     const the_path = path.join(doc_root,req.path);
-    const stats = await fsPromises.stat(the_path);
+    const stats = await fsp.stat(the_path);
     if (stats.isDirectory()) {
       if (the_path.endsWith('/')) {
-        const files = await fsPromises.readdir(the_path,{withFileTypes:true});
+        const files = await fsp.readdir(the_path,{withFileTypes:true});
         files.unshift(parentDir);
         const c_path = path.join('/ns',req.path);
         res.render('extless/dir_index',{c_path,files});
@@ -79,11 +79,11 @@ function Router(doc_root, config) {
     const the_path = path.resolve(doc_root + req.path);
     const path_data = path.parse(the_path);
     try {
-      await fsPromises.access(the_path); //無けりゃ例外
+      await fsp.access(the_path); //無けりゃ例外
       sendFile(res,the_path);
     } catch (err) {
       try {
-        const dir = await fsPromises.opendir(path_data.dir);
+        const dir = await fsp.opendir(path_data.dir);
         const ents = [];
         let dirent;
         for await (dirent of dir) {
@@ -114,4 +114,4 @@ function Router(doc_root, config) {
   return router;
 }
 
-module.exports = { Router };
+export default { Router };

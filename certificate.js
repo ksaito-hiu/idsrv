@@ -1,5 +1,5 @@
-const express = require('express');
-const forge = require('node-forge');
+import express from 'express';
+import forge from 'node-forge';
 
 // 生成した証明書の有効期限(単位:分)
 const time_limit = 10;
@@ -174,4 +174,4 @@ const init = async function(config,initial_users) {
   return router;
 };
 
-module.exports = init;
+export default init;
