@@ -1,8 +1,17 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const jose = require('jose2');
+import fs from 'fs';
+import path from 'path';
+import jose from 'jose2';
+import { readFile } from 'fs/promises';
+
+async function load_json(file_name) {
+  return JSON.parse(
+    await readFile(
+      new URL(file_name, import.meta.url)
+    )
+  );
+}
 
 if (process.argv.length!==3) {
   console.log("You must specify your configuration file for idsrv as the 1st argument.");
@@ -10,7 +19,7 @@ if (process.argv.length!==3) {
 }
 
 const cnf_path = path.join(process.cwd(),process.argv[2]);
-const config = require(cnf_path);
+const config = await load_json(cnf_path);
 
 const keystore = new jose.JWKS.KeyStore();
 
