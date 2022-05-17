@@ -10,7 +10,6 @@
 import express from 'express';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
-import bodyParser from 'body-parser';
 import Provider from 'oidc-provider';
 import fetch from 'node-fetch';
 import path from 'path';
@@ -228,8 +227,6 @@ const init = async function(config) {
   // CORS(Cross-Origin Resource Sharing)
   idsrv.use(allowCrossDomain);
 
-  const parse = bodyParser.urlencoded({ extended: false });
-
   function setNoCache(req, res, next) {
     res.set('Pragma', 'no-cache');
     res.set('Cache-Control', 'no-cache, no-store');
@@ -259,7 +256,7 @@ const init = async function(config) {
     }
   });
 
-  idsrv.get('/interaction/:uid/login', setNoCache, parse, async (req, res, next) => {
+  idsrv.get('/interaction/:uid/login', setNoCache, async (req, res, next) => {
     try {
       const { uid, prompt, params } = await oidc.interactionDetails(req,res);
       const client = await oidc.Client.find(params.client_id);
@@ -276,7 +273,7 @@ const init = async function(config) {
     }
   });
 
-  idsrv.post('/interaction/:uid/confirm', setNoCache, parse, async (req, res, next) => {
+  idsrv.post('/interaction/:uid/confirm', setNoCache, async (req, res, next) => {
     try {
       const interactionDetails = await oidc.interactionDetails(req, res);
       const { prompt: { name, details }, params, session: { accountId } } = interactionDetails;

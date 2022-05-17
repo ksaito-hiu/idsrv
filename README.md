@@ -5,6 +5,15 @@ google accounts for authentication.
 
 It's in the testing phase now.
 
+### setup nginx
+
+If you use nginx for reverse proxy, do not forget
+configure 'Access-Control-Allow-Headers'. For example
+
+    add_header Access-Control-Allow-Headers "Authorization, X-XSRF-TOKEN, DPOP";
+
+You sould include 'DPOP' in Access-Control-Allow-Headers.
+
 ### setup
 
     sudo apt install mongodb
