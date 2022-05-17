@@ -45,20 +45,24 @@ function Router(doc_root, config) {
 
   // フォルダのindexを表示できるようにするミドルウェア
   const dirIndex = async function(req,res,next) {
-    const the_path = path.join(doc_root,req.path);
-    const stats = await fsp.stat(the_path);
-    if (stats.isDirectory()) {
-      if (the_path.endsWith('/')) {
-        const files = await fsp.readdir(the_path,{withFileTypes:true});
-        files.unshift(parentDir);
-        const c_path = path.join('/ns',req.path);
-        res.render('extless/dir_index',{c_path,files});
-        return;
-      } else {
-        const basename = path.basename(the_path);
-        res.redirect('./'+basename+'/');
-        return;
+    try {
+      const the_path = path.join(doc_root,req.path);
+      const stats = await fsp.stat(the_path);
+      if (stats.isDirectory()) {
+        if (the_path.endsWith('/')) {
+          const files = await fsp.readdir(the_path,{withFileTypes:true});
+          files.unshift(parentDir);
+          const c_path = path.join('/ns',req.path);
+          res.render('extless/dir_index',{c_path,files});
+          return;
+        } else {
+          const basename = path.basename(the_path);
+          res.redirect('./'+basename+'/');
+          return;
+        }
       }
+    } catch(e) {
+      // ignore
     }
     next();
   };
@@ -99,10 +103,6 @@ function Router(doc_root, config) {
               return;
             }
           }
-        }
-        if (ents[0]) {
-          sendFile(res,path_data.dir+p);
-          return;
         }
         res.status(404).send(`${req.path} dose not exist.`);
       } catch (error) {
