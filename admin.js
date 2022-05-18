@@ -7,6 +7,7 @@ const router = express.Router();
 
 const init = async function(config,clients,initial_users) {
   let colUsers = null;
+  const idsrv_root = path.resolve(config.idsrv_root);
 
   // MongoDBのクライアントを受け取ってDBを取得し、
   // usersを記録するためのcollectionを取得。
@@ -257,7 +258,7 @@ const init = async function(config,clients,initial_users) {
             break;
           }
         }
-        await writeFile(path.join(__dirname,'clients.json'),JSON.stringify(clients,null,2));
+        await writeFile(path.join(idsrv_root,'clients.json'),JSON.stringify(clients,null,2));
         o.message=`The client(cliet_id=${client_id} was deleted.`;
         o.client_id=o.secret=o.redirects=o.post_redirects='';
       }
@@ -306,7 +307,7 @@ const init = async function(config,clients,initial_users) {
           }
         }
         clients.settings.push(new_client);
-        await writeFile(path.join(__dirname,'clients.json'),JSON.stringify(clients,null,2));
+        await writeFile(path.join(idsrv_root,'clients.json'),JSON.stringify(clients,null,2));
         o.message=`The client(cliet_id=${client_id} was registered.`;
         o.client_id=o.secret=o.redirects=o.post_redirects='';
       }
