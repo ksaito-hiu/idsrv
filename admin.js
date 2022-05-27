@@ -89,7 +89,7 @@ const init = async function(config,clients,initial_users) {
     try {
       let o = {}; // 'admin/user.ejs'にわたすデーター
       let us = null;
-      for (u of initial_users.users) {
+      for (const u of initial_users.users) {
         if (u.id===req.query.user_id) {
           us = [u];
           break;
@@ -165,7 +165,7 @@ const init = async function(config,clients,initial_users) {
         return;
       }
       let us = null;
-      for (u of initial_users.users) {
+      for (const u of initial_users.users) {
         if (u.id===user_id) {
           us = [u];
           break;

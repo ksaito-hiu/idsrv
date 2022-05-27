@@ -81,16 +81,17 @@ const init = async function(config) {
       }
       const id = config.server.email2id(email);
       if (!id) {
-        res.render('error',{message:"Your can not use this auto register method. Ask your admin."});
+        res.render('error',{message:"You can not use this auto register method. Ask your admin."});
         return;
       }
       const as = colUsers.find({"id":id}).toArray();
       if (as.length>0) {
-        res.render('error',{message:`Your had already registerd as ${id}.`});
+        res.render('error',{message:`You had already registerd as ${id}.`});
         return;
       }
       colUsers.insertOne({"id":id,googleId:sub});
       req.session.webid = config.server.id2webid(id);
+      req.session.uid = id;
       res.render('message',{message:"You are registerd! google sub="+sub+", id="+id+", email="+email+" ."});
     } catch(err) {
       res.render('error',{message:"error="+err+"."});

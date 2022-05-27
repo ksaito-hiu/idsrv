@@ -97,10 +97,14 @@ const init = async function(config) {
   idsrv.set('view engine', 'ejs');
   idsrv.set('views', path.join(idsrv_root,'views'));
 
-  // body-parserミドルウェア使わなくても以下の設定で
-  // req.bodyが使えるようになったらしい(express v4.16以上)
-  idsrv.use(express.json());
-  idsrv.use(express.urlencoded({ extended: true }));
+  // 2022,05/27: 以下の設定はリクエストのbodyを
+  // パースしてreq.body.XXXが使えるようにする物。
+  // ここで設定してidsrv全体で使えるようにしてたけど
+  // oidc-providerには付けちゃだめだった。さらにgrep
+  // してみたらreq.body使ってるところない。コメント
+  // アウトしておく。
+  //idsrv.use(express.json());
+  //idsrv.use(express.urlencoded({ extended: true }));
 
   i18n.configure({
     locales: ['en', 'ja'],

@@ -149,6 +149,10 @@ const init = async function(config,initial_users) {
   });
 
   router.get('/register',loginCheck,async (req,res)=> {
+    if (!req.session.uid) {
+      res.render('error',{message:'You have to login before registration!'});
+      return;
+    }
     if (!req.session.cert || !req.session.cert.pub_mod || !req.session.cert.pub_exp) {
       res.render('error',{message:'You have to create cert first!'});
       return;
