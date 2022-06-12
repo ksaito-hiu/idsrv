@@ -174,12 +174,13 @@ const init = async function(config) {
       profile: ['name','birthdate','gender']
     },
     responseTypes: [
-      `code id_token token`,
-      `id_token token`,
-      `code id_token`,
-      `code token`,
       `code`,
+      `code token`,
+      `code id_token`,
+      `id_token code`, // 上と同じだからか有効化できない
       `id_token`,
+      `id_token token`,
+      `code id_token token`,
       `none`
     ],
     interactions: {
@@ -190,13 +191,13 @@ const init = async function(config) {
     features: {
       // disable the packaged interactions
       devInteractions: { enabled: false },
-      //introspection: { enabled: true }, // RFC7662
+      introspection: { enabled: true }, // RFC7662 2022,06/13 changed
       //revocation: { enabled: true }, // RFC7009
 
       registration: { enabled: true },
       requestObjects: {
         mode: 'lax',
-        request: false,
+        request: true, // 2022,06/13 changed
         requestUri: false,
         requireUriRegistration: false,
       },
