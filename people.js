@@ -1,6 +1,10 @@
 import express from 'express';
 const router = express.Router();
 
+// 2022,05/30: WebIDプロファイルからリンクされる
+// prefs.ttlと、さらにそこからリンクされるprivateTypeIndex.ttlと
+// publicTypeIndex.ttlに対応させたけど、そもそもこれらが何を
+// 意味しているか理解していない状態。
 const init = async function(config) {
   let colUsers = null;
 
@@ -11,6 +15,50 @@ const init = async function(config) {
     const db = mc.db('idsrv');
     colUsers = await db.collection('users');
   };
+
+  router.get('/:uid/prefs.ttl',async (req,res)=>{
+    const uid = req.params.uid;
+    const ttl = `@prefix : <#>.
+@prefix dct: <http://purl.org/dc/terms/>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+@prefix solid: <http://www.w3.org/ns/solid/terms#>.
+@prefix space: <http://www.w3.org/ns/pim/space#>.
+
+</people/${uid}#me>
+    space:workspace :id1653875911170, :id1653875990310;
+    solid:privateTypeIndex <./privateTypeIndex.ttl>;
+    solid:publicTypeIndex <./publicTypeIndex.ttl>.
+<> a space:ConfigurationFile; dct:title "Preferences file".
+
+:id1653875911170 space:uriPrefix "null".
+
+:id1653875990310 space:uriPrefix "users".
+`;
+    res.setHeader('content-type', 'text/turtle');
+    res.send(ttl);
+  });
+
+  router.get('/:uid/privateTypeIndex.ttl',async (req,res)=>{
+    const uid = req.params.uid;
+    const ttl = `@prefix solid: <http://www.w3.org/ns/solid/terms#>.
+<>
+    a solid:TypeIndex ;
+    a solid:UnlistedDocument.
+`;
+    res.setHeader('content-type', 'text/turtle');
+    res.send(ttl);
+  });
+
+  router.get('/:uid/publicTypeIndex.ttl',async (req,res)=>{
+    const uid = req.params.uid;
+    const ttl = `@prefix solid: <http://www.w3.org/ns/solid/terms#>.
+<>
+    a solid:TypeIndex ;
+    a solid:ListedDocument.
+`;
+    res.setHeader('content-type', 'text/turtle');
+    res.send(ttl);
+  });
 
   router.get('/:uid',async (req,res)=>{
     const uid = req.params.uid;
@@ -24,24 +72,35 @@ const init = async function(config) {
     }
     if (!!cert_mod && !!cert_exp) {
       pub_key = `  cert:key [
-    rdf:type cert:RSAPublicKey ;
+    a cert:RSAPublicKey ;
     cert:modules "${cert_mod}"^^<http://www.w3.org/2001/XMLSchema#hexBinary> ;
     cert:exponent "${cert_exp}"^^<http://www.w3.org/2001/XMLSchema#integer>
   ] ;
 `;
     }
 
-    const ttl = `@prefix : <https://${config.server.hostname}/people/${uid}#>.
-@prefix n0: <http://xmlns.com/foaf/0.1/>.
-@prefix schem: <http://schema.org/>.
-@prefix n: <http://www.w3.org/2006/vcard/ns#>.
+    const ttl = `@prefix : <#>.
+@prefix acl: <http://www.w3.org/ns/auth/acl#>.
 @prefix cert: <http://www.w3.org/ns/auth/cert#>.
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+@prefix ldp: <http://www.w3.org/ns/ldp#>.
+@prefix schema: <http://schema.org/>.
+@prefix solid: <http://www.w3.org/ns/solid/terms#>.
+@prefix space: <http://www.w3.org/ns/pim/space#>.
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix pro: <./>.
+
+pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
 
 :me
-  a schem:Person, n0:Person;
+  a schema:Person, foaf:Person;
 ${pub_key}
-  n:fn "Dummy name".
+  space:preferencesFile <./${uid}/prefs.ttl>;
+  solid:privateTypeIndex <./${uid}/privateTypeIndex.ttl>;
+  solid:publicTypeIndex <./${uid}/publicTypeIndex.ttl>;
+  vcard:fn "${uid}";
+  foaf:name "${uid}".
 
 `;
     res.setHeader('content-type', 'text/turtle');
