@@ -206,7 +206,7 @@ const init = async function(config) {
     },
     enabledJWA: {
       requestObjectSigningAlgValues: [
-        'none', // これを付け加えた
+        //'none', // 2023,06/05: 昔これを付けたけど今これがあると起動しない
         'HS256',
         'RS256',
         'PS256',
