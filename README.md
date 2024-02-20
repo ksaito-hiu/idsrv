@@ -5,6 +5,8 @@ google accounts for authentication.
 
 It's in the testing phase now.
 
+### setup mongodb
+
 ### setup nginx
 
 If you use nginx for reverse proxy, do not forget
