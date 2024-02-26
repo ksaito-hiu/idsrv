@@ -1,9 +1,0 @@
-{
-  "users": [
-    {
-      "id": "your_id",
-      "googleId": "ID_NUMBER_MAYBE_21_DIGITS",
-      "yahooId": "ID_STRING_MAYBE_16_CHARS"
-    }
-  ]
-}
