@@ -1,15 +1,11 @@
-import low from 'lowdb';
-import Memory from 'lowdb/adapters/Memory.js';
-import jose from 'jose2';
+//import { LowSync, MemorySync } from 'lowdb';
+//import jose from 'jose';
 
-const db = low(new Memory());
-
-import assert from 'assert';
+const init_users = new Map();
 
 function Account(config,initial_users) {
-  db.defaults({
-    users: initial_users.users
-  }).write();
+  for (const user of initial_users.users)
+    init_users.set(user.id,user);
 
   const self = {};
   let colUsers = null; // <- MongoDBにユーザー情報入れるためのcollection
@@ -22,7 +18,7 @@ function Account(config,initial_users) {
   self.findAccount = async function(ctx, id,token) {
     // This would ideally be just a check whether the account is still in your storage
     let account;
-    account = db.get('users').find({ id }).value();
+    account = init_users.get(id);
     if (!account) {
       const as = await colUsers.find({ id }).toArray();
       if (as.length>0)
@@ -76,7 +72,13 @@ function Account(config,initial_users) {
 
   // 単にgoogleId(Googleのsub)からアカウントを探してidのみを返す
   self.findAccountByGoogleSub = async function(gid) {
-    let account = db.get('users').find({ googleId: gid }).value();
+    let account;
+    for (const [id,user] of init_users) {
+      if (user.googleId === gid) {
+        account = user;
+        break;
+      }
+    }
     if (!account) {
       const as = await colUsers.find({googleId: gid}).toArray();
       if (as.length>0)
@@ -89,7 +91,13 @@ function Account(config,initial_users) {
 
   // 単にyahooId(Yahooのsub)からアカウントを探してidのみを返す
   self.findAccountByYahooSub = async function(yid) {
-    let account = db.get('users').find({ googleId: gid }).value();
+    let account;
+    for (const [id,user] of init_users) {
+      if (user.yahooId === yid) {
+        account = user;
+        break;
+      }
+    }
     if (!account) {
       const as = await colUsers.find({googleId: gid}).toArray();
       if (as.length>0)

@@ -2,7 +2,10 @@
 
 // npm i mongodb@^3.0.0
 //const { MongoClient } = require('mongodb'); // eslint-disable-line import/no-unresolved
-import snakeCase from 'lodash/snakeCase.js';
+//import snakeCase from 'lodash/snakeCase';
+function snakeCase(str) {
+  return str.split(/(?=[A-Z])/).join('_').toLowerCase();
+}
 
 let DB;
 
@@ -127,8 +130,8 @@ class MongoAdapter {
   /*
   static async connect() {
     const connection = await MongoClient.connect(process.env.MONGODB_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
+      // useNewUrlParser: true, 2024,02/26 削除
+      // seUnifiedTopology: true 2024,02/26 削除
     });
     DB = connection.db(connection.s.options.dbName);
   }

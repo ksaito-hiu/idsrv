@@ -141,10 +141,10 @@ const init = async function(config) {
   const certificate = await certificate_init(config,initial_users);
 
   const oidc_uri = 'https://'+config.server.hostname
-  mongoClient = new MongoClient('mongodb://127.0.0.1:27017',{
+  mongoClient = new MongoClient('mongodb://127.0.0.1:27017'/*,{
     useNewUrlParser: true,
     useUnifiedTopology: true
-  });
+  } 2024,02/26 削除 */);
   await mongoClient.connect();
   MongoAdapter.connect(mongoClient);
   Account.connect(mongoClient);

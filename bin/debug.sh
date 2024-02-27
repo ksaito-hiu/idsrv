@@ -43,4 +43,3 @@ cd $INSTALL_DIR
 export DEBUG='oidc-provider:*'
 
 node --unhandled-rejections=strict src/app.js
-
