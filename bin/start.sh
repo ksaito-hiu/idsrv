@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # You need to setup node.js.
-export PATH="/usr/local/anyenv/bin:$PATH"
-export ANYENV_ROOT="/usr/local/anyenv"
-export ANYENV_DEFINITION_ROOT="/usr/local/anyenv-install"
-eval "$(anyenv init -)"
+#export PATH="/usr/local/anyenv/bin:$PATH"
+#export ANYENV_ROOT="/usr/local/anyenv"
+#export ANYENV_DEFINITION_ROOT="/usr/local/anyenv-install"
+#eval "$(anyenv init -)"
 # 上の行#!/bin/shを使うと"eval: source: not found"に
 # なっちゃう
 

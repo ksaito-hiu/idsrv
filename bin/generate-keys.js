@@ -2,7 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import jose from 'jose2';
+import * as jose from 'jose';
 import { readFile } from 'fs/promises';
 
 async function load_json(file_name) {
@@ -21,8 +21,32 @@ if (process.argv.length!==3) {
 const cnf_path = path.join(process.cwd(),process.argv[2]);
 const config = await load_json(cnf_path);
 
-const keystore = new jose.JWKS.KeyStore();
+const keystore = { keys: [] };
 
+let keyPair;
+
+keyPair = await jose.generateKeyPair('RS256', { modulusLength: 2048 });
+keystore.keys.push(await jose.exportJWK(keyPair.privateKey));
+keyPair = await jose.generateKeyPair('RS256', { modulusLength: 2048 });
+keystore.keys.push(await jose.exportJWK(keyPair.privateKey));
+keyPair = await jose.generateKeyPair('RS256', { modulusLength: 2048 });
+keystore.keys.push(await jose.exportJWK(keyPair.privateKey));
+keyPair = await jose.generateKeyPair('RS256', { modulusLength: 2048 });
+keystore.keys.push(await jose.exportJWK(keyPair.privateKey));
+keyPair = await jose.generateKeyPair('RS384', { modulusLength: 2048 });
+keystore.keys.push(await jose.exportJWK(keyPair.privateKey));
+keyPair = await jose.generateKeyPair('RS384', { modulusLength: 2048 });
+keystore.keys.push(await jose.exportJWK(keyPair.privateKey));
+keyPair = await jose.generateKeyPair('RS512', { modulusLength: 2048 });
+keystore.keys.push(await jose.exportJWK(keyPair.privateKey));
+keyPair = await jose.generateKeyPair('RS512', { modulusLength: 2048 });
+keystore.keys.push(await jose.exportJWK(keyPair.privateKey));
+
+const the_path = path.join(config.idsrv_root,'config/jwks.json');
+fs.writeFileSync(the_path, JSON.stringify(keystore, null, 2));
+
+
+/*
 Promise.all([
   keystore.generate('RSA', 2048, { alg: 'RS256', use: 'sig' }),
   keystore.generate('RSA', 2048, { alg: 'RS256', key_ops: ['verify'] }),
@@ -36,3 +60,4 @@ Promise.all([
   const the_path = path.join(config.idsrv_root,'config/jwks.json');
   fs.writeFileSync(the_path, JSON.stringify(keystore.toJWKS(true), null, 2));
 });
+*/
