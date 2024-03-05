@@ -1,3 +1,27 @@
+{ "コメント": "主にid.mydomain.comの部分やsecretの所を変えて下さい。",
+  "settings": [
+    { "コメント": "client_idがlocalのクライアントは必ず必要です。",
+      "client_id": "local",
+      "client_secret": "local_client_secret",
+      "redirect_uris": [ "https://id.mydomain.com/auth/local/callback" ],
+      "post_logout_redirect_uris": [ "https://id.mydomain.com/" ]
+    },
+    { "コメント": "好きなだけクライアントの設定を追加して下さい。",
+      "client_id": "id_of_client",
+      "client_secret": "secret_of_client",
+      "redirect_uris": ["https://your.domain.com/auth/local/callback"],
+      "post_logout_redirect_uris": ["https://your.domain.com/some_place"]
+    }
+  ]
+}
+
+
+
+
+
+
+
+
 {
   "settings": [
     {

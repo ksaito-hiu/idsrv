@@ -1,0 +1,59 @@
+{ "コメント": "idsrvのメインの設定ファイル。ユーザー名john、ドメイン名id.mydomain.comの例です。",
+  "idsrv_root": "/home/john/idsrv",
+  "server": {
+    "hostname": "id.mydomain.com",
+    "port": 8080,
+    "prefix": "/oidc",
+    "static": "/var/www/idsrv",
+    "op_cookies": {
+      "maxAge": 10800,
+      "keys": [
+        "some secret key",
+        "and also the old rotated away some time ago",
+        "and one more"
+      ]
+    },
+    "session": {
+      "secret": "some secret string",
+      "maxAge": 10800000
+    }
+  },
+  "extless" : {
+    "priority": [
+      ".ttl", ".rdf",
+      ".xml",
+      ".html", ".htm", ".xhtml",
+      ".css",
+      ".js",
+      ".json",
+      ".png", ".jpg", ".jpeg", ".gif", ".svg",
+      ".txt",
+      ".and_so_on"
+    ]
+  },
+  "googleAPI": {
+    "client_id": "たぶん半角71文字ぐらいの最後が.apps.googleusercontent.comで終る文字列",
+    "client_secret": "たぶん半角24文字ぐらいの文字列",
+    "redirect_uris": [
+      "https://id.mydomain.com/auth/google/callback"
+    ]
+  },
+  "yahooAPI": {
+    "client_id": "たぶん半角56文字ぐらいのランダムな文字列",
+    "client_secret": "たぶん半角40文字ぐらいのランダムな文字列",
+    "redirect_uris": [
+      "https://id.mydomain.com/auth/yahoo/callback"
+    ]
+  },
+  "localAPI": {
+    "issuer": "https://id.mydomain.com/oidc",
+    "client_id": "local",
+    "client_secret": "local_client_secret(client.jsonで設定したやつ)",
+    "redirect_uris": [
+      "https://id.mydomain.com/auth/local/callback"
+    ]
+  },
+  "admin": [
+    "https://id.mydomain.com/people/admin#me"
+  ]
+}

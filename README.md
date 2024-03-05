@@ -22,8 +22,8 @@ You sould include 'DPOP' in Access-Control-Allow-Headers.
     git clone https://github.com/ksaito-hiu/idsrv.git
     cd idsrv
     npm install
-    cp config/config.example.json config/config.json
-    vi config/config.json
+    cp config/idsrv.example.json config/idsrv.json
+    vi config/idsrv.json
     npm run generate-keys
     cp config/clients.example.json config/clients.json
     vi config/clients.json

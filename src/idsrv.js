@@ -1,15 +1,10 @@
 /*
  * このidsrvというexpress appはサーバーのルート(/)に配備して使う前提で
  * 作られてます。
- * const config = require('./config.json');
- * const idsrv = await require('./idsrv')(config);
- * という感じにやります。awaitを使うのでasyncな関数で
- * 囲まれた場所でやって下さい。
  */
 
 import express from 'express';
 import session from 'express-session';
-import cookieParser from 'cookie-parser';
 import Provider from 'oidc-provider';
 import fetch from 'node-fetch';
 import path from 'path';
@@ -118,8 +113,6 @@ const init = async function(config) {
     cookie: { maxAge: config.server.session.maxAge }
   }));
 
-  idsrv.use(cookieParser());
-
   // simple account model for this application, user list is defined like so
   const Account = account_init(config,initial_users);
   const google_auth = await google_auth_init(config,Account);
@@ -157,19 +150,17 @@ const init = async function(config) {
     adapter: MongoAdapter,
     "clients": clients.settings,
     cookies: {
-      long: { signed: true,
-              maxAge: config.server.op_cookies.maxAge
-            },
+      long: { signed: true },
       short: { signed: true },
       keys: config.server.op_cookies.keys
     },
     jwks,
     findAccount: Account.findAccount,
     claims: {
-      //openid: ['sub','webid','cnf'],
-      openid: ['sub','webid'],
-      profile: ['name','birthdate','gender']
+      openid: ['azp'],
+      webid: ['webid'],
     },
+    clockTolerance: 120,
     responseTypes: [
       `code`,
       `code token`,
@@ -186,39 +177,37 @@ const init = async function(config) {
       }
     },
     features: {
-      // disable the packaged interactions
-      devInteractions: { enabled: false },
-      introspection: { enabled: true }, // RFC7662 2022,06/13 changed
-      //revocation: { enabled: true }, // RFC7009
-
-      registration: { enabled: true },
-      requestObjects: {
-        mode: 'lax',
-        request: true, // 2022,06/13 changed
-        requestUri: false,
-        requireUriRegistration: false,
-      },
+      claimsParameter: { enabled: true },
       clientCredentials: { enabled: true },
+      devInteractions: { enabled: false },
       dPoP: { enabled: true },
+      introspection: { enabled: true },
+      registration: { enabled: true },
+      revocation: { enabled: true },
+      userinfo: { enabled: false },
     },
     enabledJWA: {
-      requestObjectSigningAlgValues: [
-        //'none', // 2023,06/05: 昔これを付けたけど今これがあると起動しない
-        'HS256',
-        'RS256',
-        'PS256',
-        'ES256',
-        'EdDSA'
-      ]
+      dPoPSigningAlgValues: [
+        "RS256", "RS384", "RS512",
+        "PS256", "PS384", "PS512",
+        "ES256", "ES256K", "ES384", "ES512",
+        "EdDSA"
+      ],
     },
-    // extraParams: ['key'],
-    /*
-      async extraAccessTokenClaims(ctx,token) {
-      ctx.oidc.issuer.substring(0);
-      token.jti.substring(0);
-      return { 'cnf': 'bar', };
-      },
-    */
+    scopes: [ "openid", "profile", "offline_access", "webid" ],
+    subjectTypes: [ "public" ],
+    ttl: {
+      AccessToken: 3600,
+      AuthorizationCode: 600,
+      BackchannelAuthenticationRequest: 600,
+      ClientCredentials: 600,
+      DeviceCode: 600,
+      Grant: 1209600,
+      IdToken: 3600,
+      Interaction: 3600,
+      RefreshToken: 86400,
+      Session: config.server.op_cookies.maxAge
+    },
   });
   Account.setProvider(oidc);
 
@@ -268,8 +257,7 @@ const init = async function(config) {
       const result = {
         login: { accountId },
       };
-      await oidc.interactionFinished(req, res, result,
-                                     { mergeWithLastSubmission: false });
+      return await oidc.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
     } catch (err) {
       next(err);
     }
@@ -319,8 +307,10 @@ const init = async function(config) {
         consent.grantId = grantId;
       }
 
-      const result = { consent };
-      await oidc.interactionFinished(req, res, result, { mergeWithLastSubmission: true });
+      const result = {
+        consent
+      };
+      return await oidc.interactionFinished(req, res, result);
     } catch (err) {
       next(err);
     }
@@ -332,8 +322,7 @@ const init = async function(config) {
         error: 'access_denied',
         error_description: 'End-User aborted interaction',
       };
-      await oidc.interactionFinished(req, res, result,
-                                     { mergeWithLastSubmission: false });
+      return await oidc.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
     } catch (err) {
       next(err);
     }
@@ -394,9 +383,6 @@ const init = async function(config) {
                      res.end(`{ "err": "${error}" }`);
                    }
                  });
-
-  // 基本的に、静的なファイルを配信する。
-  //idsrv.use('/ns',express.static(config.server.static));
 
   // 基本的に、静的なファイルを配信する。
   // extlessは拡張子無しのアクセスに対応するexpress.static

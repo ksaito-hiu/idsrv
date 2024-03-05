@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "generate-keys": "./bin/generate-keys.js ./config/config.json"
+    "generate-keys": "./bin/generate-keys.js ./config/idsrv.json"
   },
   "keywords": [
     "WebID-OIDC",
@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/ksaito-hiu/idsrv#readme",
   "dependencies": {
-    "cookie-parser": "^1.4.6",
     "ejs": "^3.1.9",
     "express": "^4.18.1",
     "express-session": "^1.18.0",

@@ -1,7 +1,12 @@
-{
+{ "コメント": "管理者など特別なユーザを登録します。一般ユーザはMongoDBに登録されます。",
   "users": [
     {
-      "id": "your_id",
+      "id": "admin",
+      "googleId": "ID_NUMBER_MAYBE_21_DIGITS",
+      "yahooId": "ID_STRING_MAYBE_16_CHARS"
+    },
+    {
+      "id": "john",
       "googleId": "ID_NUMBER_MAYBE_21_DIGITS",
       "yahooId": "ID_STRING_MAYBE_16_CHARS"
     }

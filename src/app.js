@@ -14,7 +14,7 @@ async function load_json(file_name) {
   return JSON.parse(str);
 }
 
-const config = await load_json(path.join(IDSRV_HOME,'config/config.json'));
+const config = await load_json(path.join(IDSRV_HOME,'config/idsrv.json'));
 // Googleアカウントに設定されたmailをidに変換する
 // 関数を設定する。自動登録の時に使用される。
 // 対象外のメールアドレスの場合はnullを返すようにしなければならない。

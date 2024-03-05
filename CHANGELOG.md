@@ -1,5 +1,13 @@
 # Changelog
 
+### 2024,03/04:
+
+* CommunitySolidServer(https://github.com/CommunitySolidServer/CommunitySolidServer)
+  のソースの中(CommunitySolidServer/config/identify/handler/base/provider-factory.json)
+  にoidc-providerのProviderをnewする時に渡すoptionのデフォルト値っぽいものを発見。
+  具体的には、`そのJSONファイル.@graph[0].config`の所。
+  これを参考にidsrv.jsの中で与えるオプションを調整してみようと思う。
+
 ### 2022,06/13:
 
 * だいぶ前に変更してたけど、commitするべきか迷ってた。
