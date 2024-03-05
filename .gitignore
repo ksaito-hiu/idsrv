@@ -1,5 +1,5 @@
 /node_modules/
-/config/config.json
+/config/idsrv.json
 /config/clients.json
 /config/users.json
 /config/jwks.json
