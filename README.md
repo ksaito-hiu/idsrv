@@ -29,8 +29,12 @@ You sould include 'DPOP' in Access-Control-Allow-Headers.
     vi config/clients.json
     cp config/users.example.json config/users.json
     vi config/users.json
+    cp config/trusted_apps.example.json config/trusted_apps.json
+    vi config/trusted_apps.json
 
 ### run
 
-    node src/app.js
+    ./bin/start.sh
+
+
 

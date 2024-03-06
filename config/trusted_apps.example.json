@@ -1,0 +1,6 @@
+{ "コメント": "このサーバーで認証される全てのユーザが信頼しても良いと言えるアプリを列挙。",
+  "apps": [
+    { "url": "https://some.domain.you.trust", "acl": [ "Append", "Read", "Write", "Control" ] },
+    { "url": "https://allow.reading.only", "acl": [ "Read" ] }
+  ]
+}

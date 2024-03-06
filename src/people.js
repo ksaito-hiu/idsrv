@@ -7,6 +7,7 @@ const router = express.Router();
 // 意味しているか理解していない状態。
 const init = async function(config) {
   let colUsers = null;
+  let trustedApps = null;
 
   // MongoDBのクライアントを受け取ってDBを取得し、
   // usersを記録するためのcollectionを取得。
@@ -14,6 +15,12 @@ const init = async function(config) {
   router.set_mongo_client = async function(mc) {
     const db = mc.db('idsrv');
     colUsers = await db.collection('users');
+  };
+
+  // このサーバーで認証される全てのユーザにとって
+  // 信頼できるアプリの情報を受け取る。
+  router.set_trusted_apps = async function(trusted_apps) {
+    trustedApps = trusted_apps;
   };
 
   router.get('/:uid/prefs.ttl',async (req,res)=>{
@@ -79,6 +86,25 @@ const init = async function(config) {
 `;
     }
 
+    let trustList = '';
+    for (let i=0;i<trustedApps.apps.length;i++) {
+      const ta = trustedApps.apps[i];
+      trustList += "    [\n      ";
+      for (let j=0;j<ta.acl.length;j++) {
+        trustList += `acl:${ta.acl[j]}`;
+        if (j != (ta.acl.length - 1))
+          trustList += ", ";
+        else
+          trustList += ";\n";
+      }
+      trustList += `      acl:origin <${ta.url}>\n`;
+      trustList += "    ]";
+      if (i != (trustedApps.apps.length - 1))
+        trustList += ",\n";
+      else
+        trustList += "";
+    }
+
     const ttl = `@prefix : <#>.
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
 @prefix cert: <http://www.w3.org/ns/auth/cert#>.
@@ -100,7 +126,10 @@ ${pub_key}
   solid:privateTypeIndex <./${uid}/privateTypeIndex.ttl>;
   solid:publicTypeIndex <./${uid}/publicTypeIndex.ttl>;
   vcard:fn "${uid}";
-  foaf:name "${uid}".
+  foaf:name "${uid}";
+  acl:trustedApp
+${trustList}
+  .
 
 `;
     res.setHeader('content-type', 'text/turtle');

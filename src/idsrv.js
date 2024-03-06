@@ -56,6 +56,7 @@ const init = async function(config) {
   const jwks = await load_json(path.join(idsrv_root,'config/jwks.json'));
   const clients = await load_json(path.join(idsrv_root,'config/clients.json'));
   const initial_users = await load_json(path.join(idsrv_root,'config/users.json'));
+  const trusted_apps = await load_json(path.join(idsrv_root,'config/trusted_apps.json'));
 
   // emailをidに変換する関数が設定されていなければ以下の
   // 関数で処理する。(デフォルト実装はgmailを過程して、
@@ -131,6 +132,7 @@ const init = async function(config) {
   register.set_google_auth(google_auth); // google_auth.googleClientを再利用するため
   register.set_yahoo_auth(yahoo_auth); // yahoo_auth.googleClientを再利用するため
   const people = await people_init(config);
+  people.set_trusted_apps(trusted_apps);
   const certificate = await certificate_init(config,initial_users);
 
   const oidc_uri = 'https://'+config.server.hostname

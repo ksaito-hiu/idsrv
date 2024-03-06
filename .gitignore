@@ -3,3 +3,4 @@
 /config/clients.json
 /config/users.json
 /config/jwks.json
+/config/trusted_apps.json
