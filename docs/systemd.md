@@ -21,9 +21,9 @@ After=network.target
 
 [Service]
 Type=simple
-User=idsrv
+User=john
 WorkingDirectory=/home/john/idsrv
-Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin::/home/john/.anyenv/envs/nodenv/shims"
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/john/.anyenv/envs/nodenv/shims"
 ExecStart=/home/john/idsrv/bin/start.sh
 Restart=on-failure
 StandardOutput=syslog
