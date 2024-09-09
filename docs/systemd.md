@@ -26,8 +26,8 @@ WorkingDirectory=/home/john/idsrv
 Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/john/.anyenv/envs/nodenv/shims"
 ExecStart=/home/john/idsrv/bin/start.sh
 Restart=on-failure
-StandardOutput=syslog
-StandardError=syslog
+#StandardOutput=syslog # ubuntu 24.04 ならコメントアウト
+#StandardError=syslog # ubuntu 24.04 ならコメントアウト
 SyslogIdentifier=idsrv-daemon
 
 [Install]
