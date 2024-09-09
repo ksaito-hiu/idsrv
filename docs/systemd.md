@@ -9,7 +9,7 @@ rsyslogdとかjournald、logrotateの話も。
 
 ### systemdのユニットファイル
 
-Ubuntuの場合の置き場所は`/lib/systemd/system/idsrv.service`。
+Ubuntuの場合の置き場所は`/etc/systemd/system/idsrv.service`。
 以下では架空のユーザ名としてjohnを使ってidsrv.serviceの中身を
 例示する。
 
