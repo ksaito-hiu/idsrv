@@ -1,5 +1,7 @@
 # idsrv
 
+** This repository was archived. No more update. **
+
 A WebID-OIDC authentication server appropriating
 google accounts for authentication.
 
